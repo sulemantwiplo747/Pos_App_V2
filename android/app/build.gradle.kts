@@ -30,14 +30,33 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
-
-    buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
-        }
+buildTypes {
+    release {
+        isMinifyEnabled = true
+        isShrinkResources = true
+        proguardFiles(
+            getDefaultProguardFile("proguard-android-optimize.txt"),
+            "proguard-rules.pro"
+        )
+        signingConfig = signingConfigs.getByName("debug") // Replace with your real signing later
     }
+}
+
+    // buildTypes {
+    //     release {
+    //      isMinifyEnabled = true
+    //     isShrinkResources = true
+
+    //         // ✅ ProGuard rules
+    //         proguardFiles(
+    //             getDefaultProguardFile("proguard-android-optimize.txt"),
+    //             "proguard-rules.pro"
+    //         )
+    //         // TODO: Add your own signing config for the release build.
+    //         // Signing with the debug keys for now, so `flutter run --release` works.
+    //         signingConfig = signingConfigs.getByName("debug")
+    //     }
+    // }
 }
 allprojects {
   repositories {
