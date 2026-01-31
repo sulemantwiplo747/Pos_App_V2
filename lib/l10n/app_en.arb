@@ -1,0 +1,12 @@
+{
+  "@@locale": "en",
+  "appTitle": "POS",
+  "recentOrders": "Recent Orders",
+  "balance": "Balance",
+  "recharge": "Recharge",
+  "activeMembers": "Active Members",
+  "addMember": "Add Member",
+  "orderDelivered": "Delivered",
+  "orderOnTheWay": "On the way",
+  "orderCancelled": "Cancelled"
+}

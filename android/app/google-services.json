@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "967355636898",
+    "project_id": "point-of-sale-e3480",
+    "storage_bucket": "point-of-sale-e3480.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967355636898:android:d3ad94c8310c13098a8bfb",
+        "android_client_info": {
+          "package_name": "com.fosshati.sa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpaoJtR4UQ9fM0LODGASUCUBMN61miY7s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

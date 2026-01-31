@@ -1,0 +1,374 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:pos_v2/constants/api_urls.dart';
+import 'package:pos_v2/constants/app_constants.dart';
+import 'package:pos_v2/models/family_member_model.dart';
+import 'package:pos_v2/models/user_model.dart';
+
+import '../core/services/analytics_services.dart';
+import '../core/services/api_services.dart';
+import '../models/user_sales_model.dart';
+import '../utils/app_utils.dart';
+import '../utils/snakbar_helper.dart';
+
+class HomeController extends GetxController {
+  final api = Get.find<ApiService>();
+  RxBool isUserLoading = false.obs;
+  RxBool isOwnerLoading = false.obs;
+  RxInt deletingMemberId = (-1).obs;
+  RxBool isFamilyLoading = false.obs;
+  RxBool isSaleLoading = false.obs;
+  RxBool isLoadMore = false.obs;
+  UserSalesModel? sales;
+
+  Rxn<UserSalesModel> memberSales = Rxn<UserSalesModel>();
+  int currentPage = 1;
+  int perPage = 10;
+  bool hasMorePages = true;
+  @override
+  Future<void> onInit() async {
+    super.onInit();
+    await getUserData();
+    getUserSales();
+    getCurrentBalance();
+    _sendFcmTokenToServer();
+    AnalyticsService.logScreen(screenName: 'HomeScreen');
+  }
+
+  var isMemberSaleLoading = false.obs;
+  var isMemberLoadMore = false.obs;
+  int memberCurrentPage = 1;
+  bool memberHasMorePages = true;
+  int? currentMemberId;
+
+  Future<void> getMemberSales({
+    required int customerId,
+    bool loadMore = false,
+  }) async {
+    if (currentMemberId != customerId || !loadMore) {
+      memberCurrentPage = 1;
+      memberHasMorePages = true;
+      memberSales.value = null;
+    }
+
+    currentMemberId = customerId;
+
+    if (!memberHasMorePages) return;
+
+    try {
+      if (loadMore) {
+        isMemberLoadMore.value = true;
+      } else {
+        isMemberSaleLoading.value = true;
+      }
+
+      final headers = await AppConstants.getAuthHeaders();
+      final data = await api.get(
+        ApiUrls.getSalesUrl,
+        headers: headers,
+        queryParameters: {
+          "customer_id": customerId.toString(),
+          "page": memberCurrentPage.toString(),
+          "per_page": perPage.toString(),
+        },
+      );
+
+      if (data['success'] == true) {
+        final model = UserSalesModel.fromJson(data);
+
+        if (loadMore && memberSales.value!.message != null) {
+          memberSales.value!.message!.data?.addAll(model.message?.data ?? []);
+          memberSales.value!.message!.pagination = model.message?.pagination;
+          memberSales.refresh(); // Trigger UI update
+        } else {
+          memberSales.value = model;
+        }
+
+        memberCurrentPage =
+            (model.message?.pagination?.currentPage ?? memberCurrentPage) + 1;
+        memberHasMorePages =
+            memberCurrentPage <=
+            (model.message?.pagination?.lastPage ?? memberCurrentPage);
+      } else {
+        SnackbarHelper.showError(
+          data['message'] ?? "Error loading member sales",
+        );
+      }
+    } on ApiException catch (e) {
+      SnackbarHelper.showError(e.message);
+    } catch (e) {
+      SnackbarHelper.showError("An unexpected error occurred");
+    } finally {
+      isMemberSaleLoading.value = false;
+      isMemberLoadMore.value = false;
+    }
+  }
+
+  Future<void> loadNextMemberPage(int customerId) async {
+    if (memberHasMorePages &&
+        !isMemberSaleLoading.value &&
+        !isMemberLoadMore.value) {
+      await getMemberSales(customerId: customerId, loadMore: true);
+    }
+  }
+
+  String formatOrderDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return '';
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat('MMM dd').format(date);
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  Future<void> _sendFcmTokenToServer() async {
+    try {
+      final headers = await AppConstants.getAuthHeaders();
+      final deviceId = DeviceUtils.getDeviceId();
+      // final fcmToken = await DeviceUtils.getFcmToken();
+
+      final body = {
+        "platform": DeviceUtils.getPlatform(),
+        "device_id": deviceId,
+        "fcm_token": AppConstants.fcmToken,
+      };
+
+      final data = await api.post(
+        ApiUrls.saveFcmToken,
+        headers: headers,
+        body: body,
+      );
+      print("FCM token sent successfully: $data");
+    } finally {}
+  }
+
+  Future<void> getUserSales({bool loadMore = false}) async {
+    if (!loadMore) {
+      currentPage = 1;
+      hasMorePages = true;
+    }
+
+    if (!hasMorePages) return;
+
+    try {
+      if (loadMore) {
+        isLoadMore.value = true;
+      } else {
+        isSaleLoading.value = true;
+      }
+
+      final headers = await AppConstants.getAuthHeaders();
+
+      final data = await api.get(
+        ApiUrls.getSalesUrl,
+        headers: headers,
+        queryParameters: {
+          "page": currentPage.toString(),
+          "per_page": perPage.toString(),
+        },
+      );
+
+      if (data['success'] == true) {
+        final model = UserSalesModel.fromJson(data);
+
+        if (loadMore && sales != null && sales!.message != null) {
+          // Append new data
+          sales!.message!.data?.addAll(model.message?.data ?? []);
+          sales!.message!.pagination = model.message?.pagination;
+        } else {
+          sales = model;
+        }
+
+        // Update pagination
+        currentPage =
+            (model.message?.pagination?.currentPage ?? currentPage) + 1;
+        hasMorePages =
+            currentPage <= (model.message?.pagination?.lastPage ?? currentPage);
+      } else {
+        SnackbarHelper.showError(data['message'] ?? "Error loading sales data");
+      }
+    } on ApiException catch (e) {
+      SnackbarHelper.showError(e.message);
+    } catch (e) {
+      SnackbarHelper.showError("An unexpected error occurred");
+    } finally {
+      if (loadMore) {
+        isLoadMore.value = false;
+      } else {
+        isSaleLoading.value = false;
+      }
+    }
+  }
+
+  Future<void> getUserData() async {
+    try {
+      isUserLoading.value = true;
+
+      final headers = await AppConstants.getAuthHeaders();
+      final data = await api.get(ApiUrls.getProfileUrl, headers: headers);
+
+      if (data['success'] == true) {
+        final model = UserModel.fromJson(data);
+        AppConstants.currentUser.value = model;
+
+        AppConstants.currentBalance.value =
+            model.userData?.remainingBalance.toString() ?? '0';
+
+        final int? parentId = model.userData?.parentId;
+        debugPrint('PARENT ID => $parentId');
+        if (parentId != null && parentId > 0) {
+          await getFamilyOwner(ownerId: parentId.toString());
+        }
+
+        await getFamilyMember();
+      } else {
+        SnackbarHelper.showError(data['message'] ?? "Error loading user");
+      }
+    } on ApiException catch (e) {
+      SnackbarHelper.showError(e.message);
+    } catch (_) {
+      SnackbarHelper.showError("An unexpected error occurred");
+    } finally {
+      isUserLoading.value = false;
+    }
+  }
+
+  // Future<void> getUserData() async {
+  //   try {
+  //     isUserLoading.value = true;
+  //     final headers = await AppConstants.getAuthHeaders();
+  //     final data = await api.get(ApiUrls.getProfileUrl, headers: headers);
+
+  //     if (data['success'] == true) {
+  //       final model = UserModel.fromJson(data);
+  //       AppConstants.currentUser.value = model;
+  //       AppConstants.currentBalance.value = model.userData!.remainingBalance
+  //           .toString();
+
+  //       getFamilyMember();
+  //       if (model.userData!.parentId != null) {
+  //         await getFamilyOwner(ownerId: model.userData!.parentId!);
+  //       }
+  //     } else {
+  //       SnackbarHelper.showError(data['message'] ?? "Error loading user");
+  //     }
+  //   } on ApiException catch (e) {
+  //     SnackbarHelper.showError(e.message);
+  //   } catch (e) {
+  //     SnackbarHelper.showError("An unexpected error occurred");
+  //   } finally {
+  //     isUserLoading.value = false;
+  //   }
+  // }
+
+  Future<void> getFamilyOwner({required String ownerId}) async {
+    try {
+      isOwnerLoading.value = true;
+      final headers = await AppConstants.getAuthHeaders();
+      final data = await api.get(
+        ApiUrls.getProfileUrl,
+        headers: headers,
+        queryParameters: {"customer_id": ownerId},
+      );
+
+      if (data['success'] == true) {
+        final model = UserModel.fromJson(data);
+        AppConstants.familyOwner.value = model;
+      } else {
+        SnackbarHelper.showError(data['message'] ?? "Error loading owner");
+      }
+    } on ApiException catch (e) {
+      SnackbarHelper.showError(e.message);
+    } catch (e) {
+      SnackbarHelper.showError("An unexpected error occurred");
+    } finally {
+      isOwnerLoading.value = false;
+    }
+  }
+
+  Future<void> getFamilyMember() async {
+    try {
+      isFamilyLoading.value = true;
+      int? customerId = AppConstants.currentUser.value!.userData!.parentId;
+      final headers = await AppConstants.getAuthHeaders();
+
+      final params = <String, dynamic>{};
+      if (customerId != null) {
+        params['customer_id'] = customerId.toString();
+      }
+
+      final data = await api.get(
+        ApiUrls.getFamilyMemberUrl,
+        headers: headers,
+        queryParameters: params.isNotEmpty ? params : null,
+      );
+
+      if (data['success'] == true) {
+        final model = FamilyMemberModel.fromJson(data);
+        AppConstants.familyMembers.value = model;
+      } else {
+        SnackbarHelper.showError(
+          data['message'] ?? "Error loading Family Members",
+        );
+      }
+    } on ApiException catch (e) {
+      SnackbarHelper.showError(e.message);
+    } catch (e) {
+      SnackbarHelper.showError("An unexpected error occurred");
+    } finally {
+      isFamilyLoading.value = false;
+    }
+  }
+
+  Future<void> deleteFamilyMember({
+    required int accountId,
+    required int parentCustomerId,
+  }) async {
+    try {
+      deletingMemberId.value = accountId;
+
+      final headers = await AppConstants.getAuthHeaders();
+
+      final data = await api.post(
+        ApiUrls.deleteSubAccount,
+        headers: headers,
+        body: {"account_id": accountId, "parent_customer_id": parentCustomerId},
+      );
+
+      if (data['success'] == true) {
+        SnackbarHelper.showSuccess(
+          data['message']['message'] ?? 'Member deleted',
+        );
+        await getFamilyMember();
+      } else {
+        SnackbarHelper.showError(data['message'] ?? 'Failed to delete member');
+      }
+    } catch (e) {
+      SnackbarHelper.showError("Something went wrong");
+    } finally {
+      deletingMemberId.value = -1;
+    }
+  }
+
+  Future<void> getCurrentBalance() async {
+    try {
+      final headers = await AppConstants.getAuthHeaders();
+
+      final data = await api.get(ApiUrls.walletBalanceUrl, headers: headers);
+
+      if (data['success'] == true) {
+        AppConstants.currentBalance.value = data['message']['current_balance']
+            .toString();
+        AppConstants.currentBalance.refresh();
+      } else {
+        // SnackbarHelper.showError(data['message'] ?? "Error loading balance");
+      }
+    } on ApiException catch (e) {
+      // SnackbarHelper.showError(e.message);
+    } catch (e) {
+      // SnackbarHelper.showError("An unexpected error occurred");
+    } finally {}
+  }
+}

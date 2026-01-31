@@ -1,0 +1,12 @@
+{
+  "@@locale": "ar",
+  "appTitle": "نقطة البيع",
+  "recentOrders": "الطلبات الأخيرة",
+  "balance": "الرصيد",
+  "recharge": "إعادة الشحن",
+  "activeMembers": "الأعضاء النشطون",
+  "addMember": "إضافة عضو",
+  "orderDelivered": "تم التسليم",
+  "orderOnTheWay": "في الطريق",
+  "orderCancelled": "ملغاة"
+}
