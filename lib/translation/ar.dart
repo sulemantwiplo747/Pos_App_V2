@@ -185,4 +185,8 @@ const Map<String, String> ar = {
   'no_balance_to_reverse': 'لا يوجد رصيد للإرجاع',
   'no_balance_transfer_desc': 'ليس لديك رصيد متاح للتحويل.',
   'no_balance_reverse_desc': 'هذا العضو لا يملك أي رصيد للإرجاع.',
+  "wallet_recharge": "شحن المحفظة",
+  "enter_amount": "أدخل المبلغ",
+  "secure_payments_note": "مدفوعات آمنة مدعومة من أوتو",
+  "enter_amount_note": "أدخل المبلغ الذي تريد إضافته إلى محفظتك.",
 };

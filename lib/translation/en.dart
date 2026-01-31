@@ -191,4 +191,8 @@ const Map<String, String> en = {
   'no_balance_to_reverse': 'No Balance to Reverse',
   'no_balance_transfer_desc': 'You have no balance available to transfer.',
   'no_balance_reverse_desc': 'This member has no balance to reverse.',
+  "wallet_recharge": "Wallet Recharge",
+  "enter_amount": "Enter Amount",
+  "secure_payments_note": "Secure payments powered by Ottu",
+  "enter_amount_note": "Enter the amount you want to add to your wallet.",
 };

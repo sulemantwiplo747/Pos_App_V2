@@ -58,7 +58,7 @@ class WalletRechargeScreen extends StatelessWidget {
             const SizedBox(height: 6),
 
             Text(
-              "Enter the amount you want to add to your wallet.",
+              "enter_amount_note".tr,
               style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
             ),
 
@@ -127,7 +127,7 @@ class WalletRechargeScreen extends StatelessWidget {
             // ✅ Footer Note
             Center(
               child: Text(
-                "Secure payments powered by Ottu",
+                "secure_payments_note".tr,
                 style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
               ),
             ),
