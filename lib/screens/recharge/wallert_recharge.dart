@@ -9,7 +9,7 @@ class WalletRechargeScreen extends StatelessWidget {
   WalletRechargeScreen({super.key});
 
   final controller = Get.put(WalletRechargeController());
-  final List<String> quickAmounts = ["5", "10", "20", "100"];
+  final List<String> quickAmounts = ["50", "100", "300", "500"];
 
   @override
   Widget build(BuildContext context) {

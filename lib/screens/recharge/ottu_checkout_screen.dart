@@ -134,6 +134,7 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
                         amount: widget.amount,
                         formsOfPayment: [
                           FormsOfPayment.googlePay,
+                          FormsOfPayment.applePay,
                           FormsOfPayment.cardOnSite,
                           FormsOfPayment.redirect,
                         ],

@@ -36,7 +36,6 @@ class WalletRechargeController extends GetxController {
           "type": "e_commerce",
 
           "pg_codes": ["credit-card-bsf"],
-
           "customer_email": user?.email ?? "",
           "customer_first_name": user?.name ?? "User",
           "customer_phone": user?.phone ?? "",
