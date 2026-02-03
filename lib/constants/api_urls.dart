@@ -1,6 +1,7 @@
 class ApiUrls {
   static String baseUrl = 'https://fosshati.com/api/mobile/';
   static String loginUrl = "login";
+  static const String configsUrl = "configs";
   static String getStoreUrl = "stores";
   static String registerUrl = "register";
   static String getProfileUrl = "profile";
@@ -19,5 +20,8 @@ class ApiUrls {
   static String transferBalance = "wallet/transfer";
   static String deleteSubAccount = "customers/account/delete";
   static const String fcmSync = "fcm/sync";
+  static const String paymentInitiateUrl = "payment/initiate";
+  static const String getOrderDetails = "payment/get-order-details";
+  //
 }
 // e5YfOeTHOU57oMnebF0Die:APA91bEuyIzS1KhUKK1G6sYOOrO_hjRjbFikr44vz5NMjw02gJ0mPaYd8gmO7TjwLXM4jW7r_UzDPF9UbAKvXA6dD8xEo_mhFq60-nPBIpuXDYRLq47Ynqw

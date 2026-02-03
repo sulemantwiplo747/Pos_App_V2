@@ -10,6 +10,7 @@ import 'package:pos_v2/screens/auth/login/login_screen.dart';
 import '../controllers/home_controller.dart';
 import '../core/app_storage.dart';
 import '../core/services/api_services.dart';
+import '../models/app_config_model.dart';
 import '../models/family_member_model.dart';
 import '../models/user_model.dart';
 
@@ -21,7 +22,15 @@ class AppConstants {
   static FirebaseAnalytics? analytics;
   static FirebaseAnalyticsObserver? observer;
   static String fcmToken = "";
-  static String ottuApiKey = "GYj5Na8H.29g9hqNjm11nORQMa2WiZwIBQQ49MdAL";
+  static String paymentBaseUrl = "";
+  static String paymentApiKey = "";
+
+  static void saveConfig(AppConfig config) {
+    paymentBaseUrl = config.message?.paymentBaseUrl ?? "";
+    paymentApiKey = config.message?.paymentApiKey ?? "";
+  }
+
+  // static String ottuApiKey = "GYj5Na8H.29g9hqNjm11nORQMa2WiZwIBQQ49MdAL";
   static String ottuMerchantId = "sandbox.ottu.net";
   static final checkoutHeight = ValueNotifier(300);
   static RxString currentBalance = "0.0".obs;

@@ -6,16 +6,20 @@ import 'package:pos_v2/constants/app_keys.dart';
 import 'package:pos_v2/screens/home_screen.dart';
 import 'package:pos_v2/screens/language/language_selector_screen.dart';
 
+import '../constants/api_urls.dart';
+import '../constants/app_constants.dart';
 import '../core/services/analytics_services.dart';
+import '../core/services/api_services.dart';
+import '../models/app_config_model.dart';
 import '../utils/app_utils.dart';
 
 class SplashController extends GetxController {
   final box = GetStorage();
-
+  final api = Get.find<ApiService>();
   @override
   void onInit() {
     super.onInit();
-
+    fetchAppConfigs();
     _navigate();
   }
 
@@ -34,6 +38,29 @@ class SplashController extends GetxController {
         Get.offAll(LanguageScreen());
       }
     });
+  }
+
+  Future<void> fetchAppConfigs() async {
+    try {
+      final headers = await AppConstants.getAuthHeaders();
+
+      final data = await api.get(ApiUrls.configsUrl, headers: headers);
+
+      print("✅ Config API Response: $data");
+
+      final configModel = AppConfig.fromJson(data);
+
+      if (configModel.success == true) {
+        // ✅ Save in AppConstants
+        AppConstants.saveConfig(configModel);
+
+        print("✅ Config Saved Successfully");
+        print("Base URL: ${AppConstants.paymentBaseUrl}");
+        print("API Key: ${AppConstants.paymentApiKey}");
+      }
+    } catch (e) {
+      print("❌ Config API Error: $e");
+    }
   }
 
   // void _navigate() {

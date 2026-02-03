@@ -48,6 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _buildPageIfNeeded(0);
+    controller.getCurrentBalance();
     ever(navController.currentIndex, (index) {
       _buildPageIfNeeded(index);
     });
