@@ -30,7 +30,7 @@ class WalletRechargeController extends GetxController {
         "email": user?.email ?? "",
         "first_name": user?.name ?? "User",
         "phone": user?.phone ?? "",
-        "pg_codes": ["credit-card-bsf"],
+        "pg_codes": ["mada-visa-master", "apple-pay"],
         "lang": lang,
       };
 

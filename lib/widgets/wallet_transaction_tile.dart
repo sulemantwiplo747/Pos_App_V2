@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pos_v2/constants/enums.dart';
 
 class WalletTransactionTile extends StatefulWidget {
@@ -8,6 +9,7 @@ class WalletTransactionTile extends StatefulWidget {
   final String date;
   final String amount;
   final int index;
+  final String balance;
 
   const WalletTransactionTile({
     super.key,
@@ -17,6 +19,7 @@ class WalletTransactionTile extends StatefulWidget {
     required this.date,
     required this.amount,
     required this.index,
+    required this.balance,
   });
 
   @override
@@ -145,13 +148,41 @@ class _WalletTransactionTileState extends State<WalletTransactionTile>
                           ),
                         ),
                         const Spacer(),
-                        Text(
-                          widget.amount,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              widget.amount,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color:
+                                    widget.transactionType ==
+                                        TransactionType.credit
+                                    ? Colors.green[700]
+                                    : Colors.red[600],
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "${"new_bal".tr} ${widget.balance} SAR",
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
+
+                        // const Spacer(),
+                        // Text(
+                        //   widget.amount,
+                        //   style: const TextStyle(
+                        //     fontWeight: FontWeight.bold,
+                        //     fontSize: 14,
+                        //   ),
+                        // ),
                       ],
                     ),
                   ],

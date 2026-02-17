@@ -195,4 +195,5 @@ const Map<String, String> en = {
   "enter_amount": "Enter Amount",
   "secure_payments_note": "Secure payments powered by Ottu",
   "enter_amount_note": "Enter the amount you want to add to your wallet.",
+  "new_bal": "New balance:",
 };

@@ -8,6 +8,7 @@ import 'package:pos_v2/models/user_model.dart';
 
 import '../core/services/analytics_services.dart';
 import '../core/services/api_services.dart';
+import '../models/app_config_model.dart';
 import '../models/user_sales_model.dart';
 import '../utils/app_utils.dart';
 import '../utils/snakbar_helper.dart';
@@ -29,6 +30,7 @@ class HomeController extends GetxController {
   @override
   Future<void> onInit() async {
     super.onInit();
+    fetchAppConfigs();
     await getUserData();
     getUserSales();
     getCurrentBalance();
@@ -41,6 +43,28 @@ class HomeController extends GetxController {
   int memberCurrentPage = 1;
   bool memberHasMorePages = true;
   int? currentMemberId;
+  Future<void> fetchAppConfigs() async {
+    try {
+      final headers = await AppConstants.getAuthHeaders();
+
+      final data = await api.get(ApiUrls.configsUrl, headers: headers);
+
+      print("✅ Config API Response: $data");
+
+      final configModel = AppConfig.fromJson(data);
+
+      if (configModel.success == true) {
+        // ✅ Save in AppConstants
+        AppConstants.saveConfig(configModel);
+
+        print("✅ Config Saved Successfully");
+        print("Base URL: ${AppConstants.paymentBaseUrl}");
+        print("API Key: ${AppConstants.paymentApiKey}");
+      }
+    } catch (e) {
+      print("❌ Config API Error: $e");
+    }
+  }
 
   Future<void> getMemberSales({
     required int customerId,

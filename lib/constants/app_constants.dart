@@ -31,7 +31,7 @@ class AppConstants {
   }
 
   // static String ottuApiKey = "GYj5Na8H.29g9hqNjm11nORQMa2WiZwIBQQ49MdAL";
-  static String ottuMerchantId = "sandbox.ottu.net";
+  static String ottuMerchantId = "online.fosshati.com.sa";
   static final checkoutHeight = ValueNotifier(300);
   static RxString currentBalance = "0.0".obs;
   static Future<void> logoutUser() async {

@@ -253,51 +253,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildBottomBar() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          controller.currentStep > 0
-              ? TextButton(onPressed: _previousStep, child: Text('back'.tr))
-              : const SizedBox(),
-          controller.creatingUser.isTrue || controller.uploadingImage.isTrue
-              ? const SizedBox(
-                  height: 48,
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              : ElevatedButton(
-                  onPressed: _nextStep,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 12,
+    return SafeArea(
+      top: false,
+      left: false,
+      right: false,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            controller.currentStep > 0
+                ? TextButton(onPressed: _previousStep, child: Text('back'.tr))
+                : const SizedBox(),
+            controller.creatingUser.isTrue || controller.uploadingImage.isTrue
+                ? const SizedBox(
+                    height: 48,
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                : ElevatedButton(
+                    onPressed: _nextStep,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    child: Text(
+                      controller.currentStep == steps.length - 1
+                          ? "upload".tr
+                          : controller.currentStep == 1 &&
+                                !widget.isFamilyMember
+                          ? "register".tr
+                          : "next".tr,
                     ),
                   ),
-                  child: Text(
-                    controller.currentStep == steps.length - 1
-                        ? "upload".tr
-                        : controller.currentStep == 1 && !widget.isFamilyMember
-                        ? "register".tr
-                        : "next".tr,
-                  ),
-                ),
-        ],
+          ],
+        ),
       ),
     );
   }

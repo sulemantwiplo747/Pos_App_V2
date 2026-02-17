@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pos_v2/constants/app_colors.dart';
+import 'package:pos_v2/controllers/bottom_nav_controller.dart';
+import 'package:pos_v2/controllers/home_controller.dart';
+import 'package:pos_v2/controllers/wallet_controller.dart';
 import 'package:pos_v2/screens/home_screen.dart';
 
 class PaymentResultScreen extends StatefulWidget {
@@ -38,100 +41,117 @@ class _PaymentResultScreenState extends State<PaymentResultScreen>
     super.dispose();
   }
 
+  void _navigateToHome() {
+    Get.find<BottomNavController>().changeIndex(1);
+    Get.offAll(() => HomeScreen());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<HomeController>().getCurrentBalance();
+      if (Get.isRegistered<WalletController>()) {
+        Get.find<WalletController>().fetchTransactions();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 236, 236, 236),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 380),
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // ------------------- ANIMATED ILLUSTRATION -------------------
-                _buildAnimatedIllustration(),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _navigateToHome();
+      },
+      child: Scaffold(
+        backgroundColor: const Color.fromARGB(255, 236, 236, 236),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 380),
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ------------------- ANIMATED ILLUSTRATION -------------------
+                  _buildAnimatedIllustration(),
 
-                // const SizedBox(height: 32),
+                  // const SizedBox(height: 32),
 
-                // ------------------- TITLE -------------------
-                Text(
-                  widget.isSuccess
-                      ? 'Payment successful!'
-                      : 'Oh no!\nSomething went wrong.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: widget.isSuccess
-                        ? Colors.black87
-                        : Colors.red.shade700,
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // ------------------- SUBTITLE -------------------
-                if (widget.isSuccess)
+                  // ------------------- TITLE -------------------
                   Text(
-                    'The payment of \$${widget.amount.toStringAsFixed(2)} '
-                    'has successfully been sent to ${widget.shopName} '
-                    'from your wallet.',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
-                      height: 1.5,
-                    ),
-                  )
-                else
-                  const Text(
-                    'We weren\'t able to process your payment. '
-                    'Please try again.',
+                    widget.isSuccess
+                        ? 'Payment successful!'
+                        : 'Oh no!\nSomething went wrong.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.redAccent,
-                      height: 1.5,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: widget.isSuccess
+                          ? Colors.black87
+                          : Colors.red.shade700,
                     ),
                   ),
 
-                const SizedBox(height: 32),
+                  const SizedBox(height: 16),
 
-                // ------------------- ACTION BUTTON -------------------
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Get.offAll(() => HomeScreen()),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: widget.isSuccess
-                          ? AppColors.primaryOrange
-                          : AppColors.lightOrange,
-                      foregroundColor: widget.isSuccess
-                          ? Colors.white
-                          : Colors.teal,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      widget.isSuccess ? 'Complete' : 'Try again',
+                  // ------------------- SUBTITLE -------------------
+                  if (widget.isSuccess)
+                    Text(
+                      'The payment of \$${widget.amount.toStringAsFixed(2)} '
+                      'has successfully been sent to ${widget.shopName} '
+                      'from your wallet.',
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        color: Colors.black54,
+                        height: 1.5,
+                      ),
+                    )
+                  else
+                    const Text(
+                      'We weren\'t able to process your payment. '
+                      'Please try again.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.redAccent,
+                        height: 1.5,
+                      ),
+                    ),
+
+                  const SizedBox(height: 32),
+
+                  // ------------------- ACTION BUTTON -------------------
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _navigateToHome,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: widget.isSuccess
+                            ? AppColors.primaryOrange
+                            : AppColors.lightOrange,
+                        foregroundColor: widget.isSuccess
+                            ? Colors.white
+                            : Colors.teal,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        widget.isSuccess ? 'Complete' : 'Try again',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

@@ -197,6 +197,7 @@ class WalletScreen extends StatelessWidget {
                         transactionType: type,
                         statusColor: color,
                         date: date,
+                        balance: txn.balance.toString(),
                         amount: formattedAmount,
                         index: index,
                       ),

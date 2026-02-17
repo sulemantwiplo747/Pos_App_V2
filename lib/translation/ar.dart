@@ -189,4 +189,5 @@ const Map<String, String> ar = {
   "enter_amount": "أدخل المبلغ",
   "secure_payments_note": "مدفوعات آمنة مدعومة من أوتو",
   "enter_amount_note": "أدخل المبلغ الذي تريد إضافته إلى محفظتك.",
+  "new_bal": "الرصيد الجديد:",
 };

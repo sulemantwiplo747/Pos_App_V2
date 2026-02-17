@@ -178,7 +178,7 @@ class RegisterController extends GetxController {
         "parent_id": AppConstants.currentUser.value!.userData!.id ?? "",
         "name": nameController.text.trim(),
         "username": usernameController.text.trim(),
-        "email": emailController.text.trim(),
+        // "email": emailController.text.trim(),
         "gov_id": govIdController.text.trim(),
         "phone": phoneController.text.trim(),
         "country": 'Riyad',

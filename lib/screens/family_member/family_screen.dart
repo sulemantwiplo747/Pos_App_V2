@@ -250,7 +250,7 @@ class FamilyScreen extends StatelessWidget {
                             Expanded(
                               child: _buildPersonTile(
                                 name: e.name ?? '',
-                                email: e.email ?? '',
+                                email: e.username ?? '',
                                 role: 'member'.tr,
                                 isOwner: isMe == true,
                                 avatarColor: _randomColor(),

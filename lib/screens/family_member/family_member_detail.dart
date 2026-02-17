@@ -945,6 +945,7 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
                 transactionId: txn.transactionId ?? '#TRX${txn.id}',
                 transactionType: type,
                 statusColor: color,
+                balance: txn.balance.toString(),
                 date: date,
                 amount: formattedAmount,
                 index: index,

@@ -55,13 +55,15 @@ class Transactions {
   int? id;
   String? transactionId;
   String? transactionType;
-  int? amount;
+  double? amount; // changed
+  double? balance; // changed
   String? createdAt;
 
   Transactions({
     this.id,
     this.transactionId,
     this.transactionType,
+    this.balance,
     this.amount,
     this.createdAt,
   });
@@ -70,7 +72,11 @@ class Transactions {
     id = json['id'];
     transactionId = json['transaction_id'];
     transactionType = json['transaction_type'];
-    amount = json['amount'];
+
+    // ✅ handle int OR double OR string safely
+    amount = _toDouble(json['amount']);
+    balance = _toDouble(json['balance']);
+
     createdAt = json['created_at'];
   }
 
@@ -80,8 +86,16 @@ class Transactions {
     data['transaction_id'] = transactionId;
     data['transaction_type'] = transactionType;
     data['amount'] = amount;
+    data['balance'] = balance;
     data['created_at'] = createdAt;
     return data;
+  }
+  double? _toDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value.toDouble();
+    if (value is double) return value;
+    if (value is String) return double.tryParse(value);
+    return null;
   }
 }
 
