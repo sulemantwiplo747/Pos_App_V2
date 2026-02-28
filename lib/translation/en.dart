@@ -48,6 +48,7 @@ const Map<String, String> en = {
   "change_later_settings": "You can change this later in settings",
   "no_stores_found": "No stores found",
   "reload": "Reload",
+  "loading": "Loading...",
   "enter_email": "Enter email",
   "invalid_email": "Invalid email",
   "enter_password": "Enter password",

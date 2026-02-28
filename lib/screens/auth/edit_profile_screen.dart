@@ -1,5 +1,6 @@
 // profile_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pos_v2/constants/app_constants.dart';
 import 'package:pos_v2/controllers/edit_profile_controller.dart';
@@ -210,7 +211,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 'email'.tr,
                 Icons.email,
                 keyboardType: TextInputType.emailAddress,
-                validator: _emailValidator,
+                validator: widget.member != null ? _optionalEmailValidator : _emailValidator,
               ),
               const SizedBox(height: 16),
               _buildTextField(
@@ -225,9 +226,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 _govIdController,
                 'government_id'.tr,
                 Icons.numbers,
-                readOnly: true,
-                keyboardType: TextInputType.emailAddress,
-                validator: _emailValidator,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
+                ],
+                validator: _govIdValidator,
               ),
               const SizedBox(height: 16),
               _buildTextField(
@@ -320,6 +324,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     VoidCallback? onTap,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return TextFormField(
       controller: controller,
@@ -327,6 +332,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       obscureText: obscureText,
       keyboardType: keyboardType,
       onTap: onTap,
+      inputFormatters: inputFormatters,
       decoration: _inputDecoration(label, icon),
       validator:
           validator ?? (v) => v?.trim().isEmpty ?? true ? 'required'.tr : null,
@@ -347,6 +353,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (value == null || value.isEmpty) return 'enter_email'.tr;
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
       return 'invalid_email'.tr;
+    return null;
+  }
+
+  String? _optionalEmailValidator(String? value) {
+    if (value == null || value.isEmpty) return null;
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
+      return 'invalid_email'.tr;
+    return null;
+  }
+
+  String? _govIdValidator(String? value) {
+    if (value == null || value.isEmpty) return 'gov_id_required'.tr;
+    if (!RegExp(r'^[0-9]+$').hasMatch(value)) return 'gov_id_numbers_only'.tr;
+    if (value.length != 10) return 'gov_id_10_digits'.tr;
     return null;
   }
 

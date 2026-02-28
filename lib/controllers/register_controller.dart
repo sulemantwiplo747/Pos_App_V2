@@ -68,6 +68,15 @@ class RegisterController extends GetxController {
     return null;
   }
 
+  /// Optional email: empty is valid; if provided, must be valid format
+  String? validateOptionalEmail(String? value) {
+    if (value == null || value.isEmpty) return null;
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+      return 'invalid_email'.tr;
+    }
+    return null;
+  }
+
   String? validatePassword(String? value) {
     if (value == null || value.isEmpty) return 'enter_password'.tr;
     if (value.length < 6) return 'min_6_characters'.tr;
@@ -178,7 +187,7 @@ class RegisterController extends GetxController {
         "parent_id": AppConstants.currentUser.value!.userData!.id ?? "",
         "name": nameController.text.trim(),
         "username": usernameController.text.trim(),
-        // "email": emailController.text.trim(),
+        if (emailController.text.trim().isNotEmpty) "email": emailController.text.trim(),
         "gov_id": govIdController.text.trim(),
         "phone": phoneController.text.trim(),
         "country": 'Riyad',
@@ -238,8 +247,12 @@ class RegisterController extends GetxController {
       if (response['success'] == true) {
         SnackbarHelper.showSuccess("profile_image_uploaded".tr);
         if (isFamilyMember) {
-          Get.find<HomeController>().getFamilyMember();
-          Get.find<BottomNavController>().changeIndex(0);
+          if (Get.isRegistered<HomeController>()) {
+            Get.find<HomeController>().getFamilyMember();
+          }
+          if (Get.isRegistered<BottomNavController>()) {
+            Get.find<BottomNavController>().changeIndex(0);
+          }
         }
 
         Get.offAll(HomeScreen());

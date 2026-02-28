@@ -580,7 +580,39 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
                                   label: 'transfer'.tr, // translated
                                   iconColor: Colors.white,
                                   textColor: Colors.white,
-                                  onTap: () {
+                                  onTap: () async {
+                                    Get.dialog(
+                                      WillPopScope(
+                                        onWillPop: () async => false,
+                                        child: Center(
+                                          child: Card(
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(24),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const CircularProgressIndicator(),
+                                                  const SizedBox(height: 16),
+                                                  Text(
+                                                    'loading'.tr,
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      barrierDismissible: false,
+                                    );
+                                    try {
+                                      await homeController.getCurrentBalance();
+                                    } finally {
+                                      if (Get.isDialogOpen == true) Get.back();
+                                    }
                                     final parentBalance =
                                         double.tryParse(
                                           AppConstants.currentBalance.value,
@@ -589,7 +621,7 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
                                     if (parentBalance <= 0) {
                                       _showZeroBalanceWarning(
                                         title: 'insufficient_balance'.tr,
-                                        message: 'Yno_balance_transfer_desc'.tr,
+                                        message: 'no_balance_transfer_desc'.tr,
                                       );
                                       return;
                                     }
@@ -878,6 +910,12 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
           'phone'.tr,
           widget.member.phone ?? 'not_provided'.tr,
         ),
+        if (widget.member.email != null && widget.member.email!.trim().isNotEmpty)
+          _buildInfoRow(
+            Icons.email,
+            'email'.tr,
+            widget.member.email!,
+          ),
         _buildInfoRow(Icons.cake, 'date_of_birth'.tr, getFormattedDob()),
         _buildInfoRow(
           Icons.location_city,

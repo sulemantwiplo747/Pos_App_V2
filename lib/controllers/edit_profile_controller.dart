@@ -141,7 +141,7 @@ class EditProfileController extends GetxController {
       final headers = await AppConstants.getAuthHeaders();
       final body = {
         "name": name,
-        "email": email,
+        if (email.trim().isNotEmpty) "email": email,
         "customer_id": memberId,
         "phone": phone,
         "gov_id": govId,

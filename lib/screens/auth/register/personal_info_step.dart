@@ -49,16 +49,18 @@ class PersonalInfoStep extends StatelessWidget {
           controller: controller.usernameController,
           validator: (v) => controller.validateRequired(v, "username".tr),
         ),
-        if (!controller.isFamilyMember) const SizedBox(height: 20),
 
-        if (!controller.isFamilyMember)
-          _buildTextField(
-            label: 'email'.tr,
-            icon: Icons.email,
-            controller: controller.emailController,
-            validator: controller.validateEmail,
-            keyboardType: TextInputType.emailAddress,
-          ),
+        const SizedBox(height: 20),
+
+        _buildTextField(
+          label: 'email'.tr,
+          icon: Icons.email,
+          controller: controller.emailController,
+          validator: controller.isFamilyMember
+              ? controller.validateOptionalEmail
+              : controller.validateEmail,
+          keyboardType: TextInputType.emailAddress,
+        ),
 
         const SizedBox(height: 20),
 

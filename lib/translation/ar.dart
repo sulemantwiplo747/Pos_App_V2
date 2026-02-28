@@ -47,6 +47,7 @@ const Map<String, String> ar = {
   "change_later_settings": "يمكنك تغييره لاحقًا في الإعدادات",
   "no_stores_found": "لم يتم العثور على متاجر",
   "reload": "إعادة تحميل",
+  "loading": "جاري التحميل...",
   "enter_email": "أدخل البريد الإلكتروني",
   "invalid_email": "البريد الإلكتروني غير صالح",
   "enter_password": "أدخل كلمة المرور",
