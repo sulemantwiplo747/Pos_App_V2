@@ -21,6 +21,11 @@ class WalletController extends GetxController {
   RxDouble currentBalance = 0.0.obs;
   RxBool isTransactionLoading = false.obs;
   RxDouble transactionLimit = 0.0.obs;
+  RxBool isChildLimitLoading = false.obs;
+  RxDouble childMaxPerTransaction = 0.0.obs;
+  RxInt childMaxDailyTransaction = 0.obs;
+  RxDouble tempChildMaxPerTxn = 10.0.obs;
+  RxDouble tempChildMaxDailyTxn = 10.0.obs;
   int currentPage = 1;
   int perPage = 15;
   bool hasMorePages = true;
@@ -146,6 +151,7 @@ class WalletController extends GetxController {
         // update balances
         currentBalance.value = currentBalance.value - amount;
         fetchCustomerTransactions(customerId: fromCustomerId);
+        fetchTransactions();
         final HomeController homeController = Get.find<HomeController>();
         await homeController.getCurrentBalance();
       } else {
@@ -179,6 +185,7 @@ class WalletController extends GetxController {
         );
         currentBalance.value = currentBalance.value + amount;
         fetchCustomerTransactions(customerId: toCustomerId);
+        fetchTransactions();
         final HomeController homeController = Get.find<HomeController>();
         await homeController.getCurrentBalance();
       } else {
@@ -293,6 +300,86 @@ class WalletController extends GetxController {
       SnackbarHelper.showError("An unexpected error occurred");
     } finally {
       isTransactionLoading.value = false;
+    }
+  }
+
+  Future<void> getChildTransactionLimit({required int customerId}) async {
+    try {
+      isChildLimitLoading.value = true;
+      final headers = await AppConstants.getAuthHeaders();
+      final data = await api.get(
+        ApiUrls.walletLimitsUrl,
+        headers: headers,
+        queryParameters: {"customer_id": customerId.toString()},
+      );
+
+      if (data['success'] == true) {
+        final maxPer = AppConstants.parseToDouble(
+          data['message']?['limits']?['max_per_transaction'],
+        );
+        final maxDaily = int.tryParse(
+              data['message']?['limits']?['max_daily_transaction']
+                      ?.toString() ??
+                  '0',
+            ) ??
+            0;
+        childMaxPerTransaction.value = maxPer;
+        childMaxDailyTransaction.value = maxDaily;
+        tempChildMaxPerTxn.value = maxPer.clamp(10.0, 200.0);
+        tempChildMaxDailyTxn.value = maxDaily.toDouble().clamp(10.0, 200.0);
+      }
+    } on ApiException catch (e) {
+      SnackbarHelper.showError(e.message);
+    } catch (e) {
+      SnackbarHelper.showError("An unexpected error occurred");
+    } finally {
+      isChildLimitLoading.value = false;
+    }
+  }
+
+  Future<void> updateChildTransactionLimit({
+    required int customerId,
+    required String maxPerTransaction,
+    required String maxDailyTransaction,
+  }) async {
+    try {
+      isChildLimitLoading.value = true;
+      final headers = await AppConstants.getAuthHeaders();
+      final data = await api.post(
+        ApiUrls.walletLimitsUrl,
+        headers: headers,
+        body: {
+          "customer_id": customerId,
+          "max_per_transaction": maxPerTransaction,
+          "max_daily_transaction": maxDailyTransaction,
+        },
+      );
+
+      if (data['success'] == true) {
+        final maxPer = AppConstants.parseToDouble(
+          data['message']?['limits']?['max_per_transaction'],
+        );
+        final maxDaily = int.tryParse(
+              data['message']?['limits']?['max_daily_transaction']
+                      ?.toString() ??
+                  '0',
+            ) ??
+            0;
+        childMaxPerTransaction.value = maxPer;
+        childMaxDailyTransaction.value = maxDaily;
+        tempChildMaxPerTxn.value = maxPer.clamp(10.0, 200.0);
+        tempChildMaxDailyTxn.value = maxDaily.toDouble().clamp(10.0, 200.0);
+        Get.back();
+        showSuccessPopup();
+      } else {
+        SnackbarHelper.showError(data['message'] ?? "Error updating limit");
+      }
+    } on ApiException catch (e) {
+      SnackbarHelper.showError(e.message);
+    } catch (e) {
+      SnackbarHelper.showError("An unexpected error occurred");
+    } finally {
+      isChildLimitLoading.value = false;
     }
   }
 

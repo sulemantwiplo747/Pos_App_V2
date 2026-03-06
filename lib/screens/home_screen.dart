@@ -50,7 +50,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _buildPageIfNeeded(0);
     controller.getCurrentBalance();
     ever(navController.currentIndex, (index) {
-      _buildPageIfNeeded(index);
+      if (index == 1) {
+        _pageCache[1] = _pageBuilders[1]!();
+      } else {
+        _buildPageIfNeeded(index);
+      }
     });
   }
 

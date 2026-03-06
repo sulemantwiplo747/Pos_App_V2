@@ -385,6 +385,7 @@ class HomeController extends GetxController {
       if (data['success'] == true) {
         AppConstants.currentBalance.value = data['message']['current_balance']
             .toString();
+        // AppConstants.currentBalance.value = "20"; 
         AppConstants.currentBalance.refresh();
       } else {
         // SnackbarHelper.showError(data['message'] ?? "Error loading balance");

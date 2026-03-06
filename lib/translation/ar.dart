@@ -191,4 +191,10 @@ const Map<String, String> ar = {
   "secure_payments_note": "مدفوعات آمنة مدعومة من أوتو",
   "enter_amount_note": "أدخل المبلغ الذي تريد إضافته إلى محفظتك.",
   "new_bal": "الرصيد الجديد:",
+  "set_limit": "تعيين الحد",
+  "set_child_limit": "تعيين حد العضو",
+  "set_child_limit_desc": "حدد الحد الأقصى للمعاملة وعدد المعاملات اليومية لهذا العضو.",
+  "max_per_transaction_label": "الحد الأقصى للمعاملة (ريال)",
+  "max_daily_transaction_label": "الحد الأقصى للمعاملات اليومية",
+  "fill_all_fields": "يرجى ملء جميع الحقول",
 };

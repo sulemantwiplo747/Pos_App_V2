@@ -211,7 +211,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 'email'.tr,
                 Icons.email,
                 keyboardType: TextInputType.emailAddress,
-                validator: widget.member != null ? _optionalEmailValidator : _emailValidator,
+                validator: widget.member != null
+                    ? _optionalEmailValidator
+                    : _emailValidator,
               ),
               const SizedBox(height: 16),
               _buildTextField(

@@ -50,6 +50,7 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
       walletController.currentBalance.value = widget.member.remainingBalance!
           .toDouble();
       walletController.fetchCustomerTransactions(customerId: widget.member.id!);
+      walletController.getChildTransactionLimit(customerId: widget.member.id!);
       homeController.getMemberSales(customerId: widget.member.id!);
     }
   }
@@ -766,30 +767,88 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
                 //   ),
                 // ),
                 const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton.icon(
-                    onPressed: () =>
-                        Get.to(() => EditProfileScreen(member: widget.member)),
-                    icon: const Icon(Icons.edit_outlined, size: 20),
-                    label: Text(
-                      'edit_profile'.tr,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                if (isParent)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: ElevatedButton.icon(
+                            onPressed: () => Get.to(
+                              () => EditProfileScreen(member: widget.member),
+                            ),
+                            icon: const Icon(Icons.edit_outlined, size: 20),
+                            label: Text(
+                              'edit_profile'.tr,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColor,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              elevation: 3,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: ElevatedButton.icon(
+                            onPressed: () => _showChildLimitBottomSheet(),
+                            icon: const Icon(Icons.tune, size: 20),
+                            label: Text(
+                              'set_limit'.tr,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              elevation: 3,
+                            ),
+                          ),
+                        ),
                       ),
-                      elevation: 3,
+                    ],
+                  ),
+                if (!isParent)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      onPressed: () => Get.to(
+                        () => EditProfileScreen(member: widget.member),
+                      ),
+                      icon: const Icon(Icons.edit_outlined, size: 20),
+                      label: Text(
+                        'edit_profile'.tr,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 3,
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ),
@@ -828,6 +887,170 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
           ),
         ],
       ),
+    );
+  }
+
+  void _showChildLimitBottomSheet() {
+    if (!walletController.isChildLimitLoading.value &&
+        walletController.childMaxPerTransaction.value > 0) {
+      walletController.tempChildMaxPerTxn.value = walletController
+          .childMaxPerTransaction
+          .value
+          .clamp(10.0, 200.0);
+      walletController.tempChildMaxDailyTxn.value = walletController
+          .childMaxDailyTransaction
+          .value
+          .toDouble()
+          .clamp(10.0, 200.0);
+    } else if (!walletController.isChildLimitLoading.value) {
+      walletController.tempChildMaxPerTxn.value = 10.0;
+      walletController.tempChildMaxDailyTxn.value = 10.0;
+    }
+
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Obx(() {
+          if (walletController.isChildLimitLoading.value) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'set_child_limit'.tr,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'set_child_limit_desc'.tr,
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                ),
+                const SizedBox(height: 40),
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: CircularProgressIndicator(color: Colors.blue),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'set_child_limit'.tr,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'set_child_limit_desc'.tr,
+                style: const TextStyle(fontSize: 13, color: Colors.grey),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'max_per_transaction_label'.tr,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'SAR ${walletController.tempChildMaxPerTxn.value.toInt()}',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Slider(
+                min: 10,
+                max: 200,
+                divisions: 190,
+                value: walletController.tempChildMaxPerTxn.value.clamp(
+                  10.0,
+                  200.0,
+                ),
+                onChanged: (v) => walletController.tempChildMaxPerTxn.value = v,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'max_daily_transaction_label'.tr,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${walletController.tempChildMaxDailyTxn.value.toInt()}',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Slider(
+                min: 10,
+                max: 200,
+                divisions: 190,
+                value: walletController.tempChildMaxDailyTxn.value.clamp(
+                  10.0,
+                  200.0,
+                ),
+                onChanged: (v) =>
+                    walletController.tempChildMaxDailyTxn.value = v,
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    walletController.updateChildTransactionLimit(
+                      customerId: widget.member.id!,
+                      maxPerTransaction: walletController
+                          .tempChildMaxPerTxn
+                          .value
+                          .toInt()
+                          .toString(),
+                      maxDailyTransaction: walletController
+                          .tempChildMaxDailyTxn
+                          .value
+                          .toInt()
+                          .toString(),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    'confirm'.tr,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
+      isScrollControlled: true,
     );
   }
 
@@ -910,12 +1133,9 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
           'phone'.tr,
           widget.member.phone ?? 'not_provided'.tr,
         ),
-        if (widget.member.email != null && widget.member.email!.trim().isNotEmpty)
-          _buildInfoRow(
-            Icons.email,
-            'email'.tr,
-            widget.member.email!,
-          ),
+        if (widget.member.email != null &&
+            widget.member.email!.trim().isNotEmpty)
+          _buildInfoRow(Icons.email, 'email'.tr, widget.member.email!),
         _buildInfoRow(Icons.cake, 'date_of_birth'.tr, getFormattedDob()),
         _buildInfoRow(
           Icons.location_city,

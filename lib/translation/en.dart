@@ -197,4 +197,10 @@ const Map<String, String> en = {
   "secure_payments_note": "Secure payments powered by Ottu",
   "enter_amount_note": "Enter the amount you want to add to your wallet.",
   "new_bal": "New balance:",
+  "set_limit": "Set Limit",
+  "set_child_limit": "Set Child Limit",
+  "set_child_limit_desc": "Set the maximum transaction limit and daily transaction count for this member.",
+  "max_per_transaction_label": "Max Amount Per Transaction (SAR)",
+  "max_daily_transaction_label": "Max Daily Transactions",
+  "fill_all_fields": "Please fill all fields",
 };
