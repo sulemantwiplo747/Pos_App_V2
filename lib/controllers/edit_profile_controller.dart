@@ -60,7 +60,10 @@ class EditProfileController extends GetxController {
       );
 
       if (response['success'] == true) {
-        HomeController controller = Get.find();
+        if (!Get.isRegistered<HomeController>()) {
+          Get.put(HomeController(), permanent: true);
+        }
+        final controller = Get.find<HomeController>();
         controller.getUserData();
         loadUserImage();
         SnackbarHelper.showSuccess("Profile image uploaded successfully!");
@@ -109,7 +112,10 @@ class EditProfileController extends GetxController {
       );
 
       if (response['success'] == true) {
-        final HomeController homeController = Get.find<HomeController>();
+        if (!Get.isRegistered<HomeController>()) {
+          Get.put(HomeController(), permanent: true);
+        }
+        final homeController = Get.find<HomeController>();
         await homeController.getUserData();
         Get.back();
         SnackbarHelper.showSuccess("Profile updated successfully");
@@ -149,7 +155,7 @@ class EditProfileController extends GetxController {
         "gov_id": govId,
         "country": country,
         "city": city,
-        "address": city,
+        "address": address,
         "dob": dob,
       };
 
@@ -160,7 +166,10 @@ class EditProfileController extends GetxController {
       );
 
       if (response['success'] == true) {
-        final HomeController homeController = Get.find<HomeController>();
+        if (!Get.isRegistered<HomeController>()) {
+          Get.put(HomeController(), permanent: true);
+        }
+        final homeController = Get.find<HomeController>();
         await homeController.getFamilyMember();
         Accounts? updatedMember;
         for (final a

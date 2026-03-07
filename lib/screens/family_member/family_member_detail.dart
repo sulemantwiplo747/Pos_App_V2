@@ -17,6 +17,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../constants/app_constants.dart';
 import '../../utils/snakbar_helper.dart' show SnackbarHelper;
+import '../../widgets/app_screen_wrapper.dart';
 import '../auth/edit_profile_screen.dart';
 
 class FamilyMemberDetailScreen extends StatefulWidget {
@@ -303,7 +304,12 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
 
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+        padding: EdgeInsets.fromLTRB(
+          20,
+          20,
+          20,
+          30 + MediaQuery.of(context).padding.bottom,
+        ),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -514,20 +520,9 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
     final String? profileImage = getProfileImageUrl();
     final isParent = AppConstants.currentUser.value?.userData?.parentId == null;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          'view_member'.tr,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-      ),
-      body: Column(
+    return AppScreenWrapper(
+      title: 'view_member'.tr,
+      child: Column(
         children: [
           // Profile header
           Container(
@@ -909,7 +904,12 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
 
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.fromLTRB(
+          20,
+          20,
+          20,
+          20 + MediaQuery.of(context).padding.bottom,
+        ),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),

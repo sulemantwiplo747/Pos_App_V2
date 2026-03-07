@@ -8,6 +8,7 @@ import 'package:ottu_flutter_checkout/ottu_flutter_checkout.dart'
     hide TextStyle;
 import 'package:pos_v2/constants/api_urls.dart';
 import 'package:pos_v2/constants/app_constants.dart';
+import 'package:pos_v2/widgets/app_screen_wrapper.dart';
 import 'package:pos_v2/core/services/api_services.dart';
 import 'package:pos_v2/models/get_order_detail_model.dart';
 import 'package:pos_v2/screens/payment_result_screen.dart';
@@ -134,8 +135,7 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
+    return AppScreenWrapper(
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
@@ -150,7 +150,7 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: Stack(
+      child: Stack(
         children: [
           SingleChildScrollView(
             padding: const EdgeInsets.all(16),

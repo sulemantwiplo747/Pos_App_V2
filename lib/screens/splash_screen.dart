@@ -176,9 +176,9 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             ),
 
-            // Footer
+            // Footer (safe from system navigation)
             Positioned(
-              bottom: 24,
+              bottom: 24 + MediaQuery.of(context).padding.bottom,
               left: 0,
               right: 0,
               child: Text(

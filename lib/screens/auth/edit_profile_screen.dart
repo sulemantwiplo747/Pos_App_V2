@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pos_v2/constants/app_constants.dart';
 import 'package:pos_v2/controllers/edit_profile_controller.dart';
+import 'package:pos_v2/widgets/app_screen_wrapper.dart';
 
 import '../../core/services/analytics_services.dart';
 import '../../models/family_member_model.dart';
@@ -48,6 +49,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _cityController.text = m.city ?? "";
       _addressController.text = "";
       _usernameController.text = m.username ?? "";
+      _addressController.text = m.address ?? "";
       _govIdController.text = m.govId ?? "";
     } else {
       final user = AppConstants.currentUser.value?.userData;
@@ -177,21 +179,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          'edit_profile'.tr,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-      ),
-      body: Form(
+    return AppScreenWrapper(
+      title: 'edit_profile'.tr,
+      child: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -261,10 +251,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 16),
               _buildTextField(_cityController, 'city'.tr, Icons.location_city),
-              if (widget.member == null) ...[
-                const SizedBox(height: 16),
-                _buildTextField(_addressController, 'address'.tr, Icons.home),
-              ],
+              // if (widget.member == null) ...[
+              const SizedBox(height: 16),
+              _buildTextField(_addressController, 'address'.tr, Icons.home),
+              // ],
               const SizedBox(height: 24),
 
               const SizedBox(height: 32),
