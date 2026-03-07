@@ -261,8 +261,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 16),
               _buildTextField(_cityController, 'city'.tr, Icons.location_city),
-              const SizedBox(height: 16),
-              _buildTextField(_addressController, 'address'.tr, Icons.home),
+              if (widget.member == null) ...[
+                const SizedBox(height: 16),
+                _buildTextField(_addressController, 'address'.tr, Icons.home),
+              ],
               const SizedBox(height: 24),
 
               const SizedBox(height: 32),

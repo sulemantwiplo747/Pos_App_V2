@@ -8,6 +8,8 @@ import 'package:pos_v2/core/services/api_services.dart';
 
 import '../constants/api_urls.dart';
 import '../constants/app_constants.dart';
+import '../models/family_member_model.dart';
+import '../screens/family_member/family_member_detail.dart';
 import '../utils/snakbar_helper.dart';
 
 class EditProfileController extends GetxController {
@@ -147,7 +149,7 @@ class EditProfileController extends GetxController {
         "gov_id": govId,
         "country": country,
         "city": city,
-        "address": address,
+        "address": city,
         "dob": dob,
       };
 
@@ -159,9 +161,23 @@ class EditProfileController extends GetxController {
 
       if (response['success'] == true) {
         final HomeController homeController = Get.find<HomeController>();
-        await homeController.getUserData();
-        Get.back();
-        SnackbarHelper.showSuccess("Profile updated successfully");
+        await homeController.getFamilyMember();
+        Accounts? updatedMember;
+        for (final a
+            in AppConstants.familyMembers.value?.message?.accounts ?? []) {
+          if (a.id.toString() == memberId) {
+            updatedMember = a;
+            break;
+          }
+        }
+        if (updatedMember != null) {
+          Get.until((route) => route.isFirst);
+          Get.to(() => FamilyMemberDetailScreen(member: updatedMember!));
+          SnackbarHelper.showSuccess("Profile updated successfully");
+        } else {
+          Get.back();
+          SnackbarHelper.showSuccess("Profile updated successfully");
+        }
       } else {
         SnackbarHelper.showError(
           response['message'] ?? "Profile update failed",
