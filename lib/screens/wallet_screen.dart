@@ -47,47 +47,56 @@ class WalletScreen extends StatelessWidget {
             ),
           ),
 
-          // Padding(
-          //   padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-          //   child: Obx(() {
-          //     return Row(
-          //       children: [
-          //         Expanded(
-          //           child: Text(
-          //             'transaction_limit_text'.trParams({
-          //               'limit': controller.transactionLimit.value
-          //                   .toInt()
-          //                   .toString(),
-          //             }),
-          //             style: const TextStyle(fontSize: 13, color: Colors.grey),
-          //           ),
-          //         ),
-          //         GestureDetector(
-          //           onTap: () =>
-          //               controller.showLimitBottomSheet(context, controller),
-          //           child: Row(
-          //             children: [
-          //               Icon(
-          //                 Icons.edit,
-          //                 size: 18,
-          //                 color: Theme.of(context).primaryColor,
-          //               ),
-          //               const SizedBox(width: 4),
-          //               Text(
-          //                 'change_limit'.tr,
-          //                 style: TextStyle(
-          //                   fontSize: 13,
-          //                   fontWeight: FontWeight.w600,
-          //                   color: Theme.of(context).primaryColor,
-          //                 ),
-          //               ),
-          //             ],
-          //           ),
-          //         ),
-          //       ],
-          //     );
-          //   }),
-          // ),
+          Obx(() {
+            final isChild =
+                AppConstants.currentUser.value?.userData?.parentId != null;
+            if (!isChild) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'transaction_limit_text'.trParams({
+                      'limit': controller.transactionLimit.value
+                          .toInt()
+                          .toString(),
+                    }),
+                    style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  ),
+                  if (controller.maxDailyTransaction.value > 0) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'per_day_transaction_limit_text'.trParams({
+                        'limit': controller.maxDailyTransaction.value
+                            .toString(),
+                      }),
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                    ),
+                  ],
+                  // GestureDetector(
+                  //   onTap: () =>
+                  //       controller.showLimitBottomSheet(context, controller),
+                  //   child: Row(
+                  //     children: [
+                  //       Icon(
+                  //         Icons.edit,
+                  //         size: 18,
+                  //         color: Theme.of(context).primaryColor,
+                  //       ),
+                  //       const SizedBox(width: 4),
+                  //       Text(
+                  //         'change_limit'.tr,
+                  //         style: TextStyle(
+                  //           fontSize: 13,
+                  //           fontWeight: FontWeight.w600,
+                  //           color: Theme.of(context).primaryColor,
+                  //         ),
+                  //       ),
+                ],
+              ),
+            );
+          }),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Text(

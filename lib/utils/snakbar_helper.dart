@@ -5,7 +5,7 @@ class SnackbarHelper {
   // Success snackbar
   static void showSuccess(String message) {
     Get.snackbar(
-      "Success",
+      "success".tr,
       message,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.green.shade600,

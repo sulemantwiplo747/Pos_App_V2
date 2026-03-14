@@ -148,6 +148,7 @@ const Map<String, String> ar = {
   "passwords_not_match": "كلمات المرور غير متطابقة",
   "update_password": "تحديث كلمة المرور",
   'transaction_limit_text': 'الحد الأقصى للمعاملة ريال @limit',
+  'per_day_transaction_limit_text': 'يومياً: @limit معاملة',
   'change_limit': 'تغيير الحد',
   'set_transaction_limit': 'تحديد حد المعاملات',
   'adjust_daily_limit': 'قم بتعديل حد المعاملات اليومي',
@@ -179,6 +180,8 @@ const Map<String, String> ar = {
   "reverse_limit": "يمكنك عكس ما يصل إلى SAR @amount",
   "transfer_limit": "يمكنك تحويل ما يصل إلى SAR @amount",
   "delete_family_member": "حذف عضو العائلة",
+  "member_deleted": "تم حذف العضو بنجاح",
+  "failed_to_delete_member": "فشل في حذف العضو",
   "warning": "تحذير",
   "delete_member_warning":
       "سيتم فقدان جميع الأرصدة المتبقية لهذا العضو نهائيًا ولا يمكن استرجاعها.",

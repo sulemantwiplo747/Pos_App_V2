@@ -1147,6 +1147,13 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen>
               : "${widget.member.city ?? ''}${widget.member.city != null ? ', ' : ''}${widget.member.country ?? ''}",
         ),
         _buildInfoRow(
+          Icons.home,
+          'address'.tr,
+          (widget.member.address ?? '').trim().isEmpty
+              ? 'not_provided'.tr
+              : widget.member.address!,
+        ),
+        _buildInfoRow(
           Icons.credit_card,
           'gov_id'.tr,
           widget.member.govId ?? 'not_provided'.tr,

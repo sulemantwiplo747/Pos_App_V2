@@ -54,200 +54,6 @@ class _LoginWrapperState extends State<LoginWrapper>
     super.dispose();
   }
 
-  // --------------------------------------------------------------
-  // 1. Show the main menu dialog (unchanged except language tile)
-  // --------------------------------------------------------------
-  void _showMenuDialog(BuildContext context) {
-    _animController.forward(from: 0.0);
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => Center(
-        child: ScaleTransition(
-          scale: _scaleAnimation,
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              width: 350,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // ----- User info -----
-                  Row(
-                    children: [
-                      Obx(() {
-                        final user = AppConstants.currentUser.value?.userData;
-                        final images = user?.imageUrl?.imageUrls;
-
-                        final img =
-                            (images != null &&
-                                images.isNotEmpty &&
-                                images.first.trim().isNotEmpty)
-                            ? images.first.trim()
-                            : "";
-
-                        return CircleAvatar(
-                          backgroundColor: Colors.grey.shade300,
-                          backgroundImage: img.isNotEmpty
-                              ? NetworkImage(img)
-                              : null,
-                          child: img.isEmpty
-                              ? const Icon(
-                                  Icons.person,
-                                  size: 20,
-                                  color: Colors.grey,
-                                )
-                              : null,
-                        );
-                      }),
-                      // CircleAvatar(
-                      //   backgroundColor: Color(0xFFE0E0E0),
-                      //   child: Icon(
-                      //     Icons.person,
-                      //     color: Colors.white,
-                      //     size: 30,
-                      //   ),
-                      // ),
-                      SizedBox(width: 15),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              AppConstants.currentUser.value!.userData!.name ??
-                                  "",
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.badge_outlined, // Gov ID icon
-                                  size: 16,
-                                  color: Colors.grey.shade600,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  AppConstants
-                                          .currentUser
-                                          .value!
-                                          .userData!
-                                          .govId ??
-                                      "",
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // ----- Menu items -----
-                  _buildMenuTile(
-                    icon: Icons.qr_code,
-                    title: 'my_qr'.tr,
-                    onTap: () {
-                      Get.back();
-                      _showQRCodeDialog();
-                    },
-                  ),
-                  const Divider(
-                    height: 1,
-                    color: Color.fromARGB(255, 235, 235, 235),
-                  ),
-                  _buildMenuTile(
-                    icon: Icons.person,
-                    title: 'edit_info'.tr,
-                    onTap: () {
-                      Get.back();
-                      Get.to(() => EditProfileScreen());
-                    },
-                  ),
-                  const Divider(
-                    height: 1,
-                    color: Color.fromARGB(255, 235, 235, 235),
-                  ),
-                  _buildMenuTile(
-                    icon: Icons.wallet,
-                    title: 'wallets'.tr,
-                    onTap: () {
-                      Get.back();
-                      final BottomNavController navController = Get.find();
-                      navController.changeIndex(1);
-                    },
-                  ),
-                  const Divider(
-                    height: 1,
-                    color: Color.fromARGB(255, 235, 235, 235),
-                  ),
-
-                  // ---------- LANGUAGE SWITCHER ----------
-                  _buildMenuTile(
-                    icon: Icons.language,
-                    title: 'change_language'.tr,
-                    onTap: () {
-                      Get.back(); // close menu
-                      _showLanguagePicker(); // open language dialog
-                    },
-                  ),
-                  const Divider(
-                    height: 1,
-                    color: Color.fromARGB(255, 235, 235, 235),
-                  ),
-                  _buildMenuTile(
-                    icon: Icons.lock,
-                    title: 'change_password'.tr,
-                    onTap: () {
-                      Get.off(ChangePasswordScreen());
-                    },
-                  ),
-                  const Divider(
-                    height: 1,
-                    color: Color.fromARGB(255, 235, 235, 235),
-                  ),
-
-                  _buildMenuTile(
-                    icon: Icons.logout,
-                    title: 'logout'.tr,
-                    color: Colors.red,
-                    onTap: () {
-                      Get.back();
-                      _showLogoutDialog();
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    ).then((_) => _animController.reset());
-  }
-
-  // --------------------------------------------------------------
-  // 2. Language picker dialog (zoom-in, RTL aware)
-  // --------------------------------------------------------------
   void _showLanguagePicker() {
     _animController.forward(from: 0.0);
     showDialog(
@@ -341,27 +147,6 @@ class _LoginWrapperState extends State<LoginWrapper>
     );
   }
 
-  // --------------------------------------------------------------
-  // 4. Helper tiles (unchanged)
-  // --------------------------------------------------------------
-  Widget _buildMenuTile({
-    required IconData icon,
-    required String title,
-    Color? color,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: Icon(icon, color: color ?? Colors.black87, size: 22),
-      title: Text(
-        title,
-        style: TextStyle(fontSize: 16, color: color ?? Colors.black87),
-      ),
-      onTap: onTap,
-      contentPadding: EdgeInsets.zero,
-      minLeadingWidth: 30,
-    );
-  }
-
   void _showLogoutDialog() {
     Get.dialog(
       AlertDialog(
@@ -403,6 +188,204 @@ class _LoginWrapperState extends State<LoginWrapper>
   // --------------------------------------------------------------
   // 5. Scaffold (unchanged)
   // --------------------------------------------------------------
+  // --------------------------------------------------------------
+  // 1. Show the main menu dialog
+  // --------------------------------------------------------------
+  void _showMenuDialog(BuildContext context) {
+    _animController.forward(from: 0.0);
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => Center(
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              width: 350,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ----- User info -----
+                  Row(
+                    children: [
+                      Obx(() {
+                        final user = AppConstants.currentUser.value?.userData;
+                        final images = user?.imageUrl?.imageUrls;
+
+                        final img =
+                            (images != null &&
+                                images.isNotEmpty &&
+                                images.first.trim().isNotEmpty)
+                            ? images.first.trim()
+                            : "";
+
+                        return CircleAvatar(
+                          backgroundColor: Colors.grey.shade300,
+                          backgroundImage: img.isNotEmpty
+                              ? NetworkImage(img)
+                              : null,
+                          child: img.isEmpty
+                              ? const Icon(
+                                  Icons.person,
+                                  size: 20,
+                                  color: Colors.grey,
+                                )
+                              : null,
+                        );
+                      }),
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppConstants.currentUser.value!.userData!.name ??
+                                  "",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.badge_outlined,
+                                  size: 16,
+                                  color: Colors.grey.shade600,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  AppConstants
+                                          .currentUser
+                                          .value!
+                                          .userData!
+                                          .govId ??
+                                      "",
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // ----- Menu items -----
+                  _buildMenuTile(
+                    icon: Icons.qr_code,
+                    title: 'my_qr'.tr,
+                    onTap: () {
+                      Get.back();
+                      _showQRCodeDialog();
+                    },
+                  ),
+                  const Divider(
+                    height: 1,
+                    color: Color.fromARGB(255, 235, 235, 235),
+                  ),
+                  _buildMenuTile(
+                    icon: Icons.person,
+                    title: 'edit_info'.tr,
+                    onTap: () {
+                      Get.back();
+                      Get.to(() => EditProfileScreen());
+                    },
+                  ),
+                  const Divider(
+                    height: 1,
+                    color: Color.fromARGB(255, 235, 235, 235),
+                  ),
+                  _buildMenuTile(
+                    icon: Icons.wallet,
+                    title: 'wallets'.tr,
+                    onTap: () {
+                      Get.back();
+                      final BottomNavController navController = Get.find();
+                      navController.changeIndex(1);
+                    },
+                  ),
+                  const Divider(
+                    height: 1,
+                    color: Color.fromARGB(255, 235, 235, 235),
+                  ),
+                  _buildMenuTile(
+                    icon: Icons.language,
+                    title: 'change_language'.tr,
+                    onTap: () {
+                      Get.back();
+                      _showLanguagePicker();
+                    },
+                  ),
+                  const Divider(
+                    height: 1,
+                    color: Color.fromARGB(255, 235, 235, 235),
+                  ),
+                  _buildMenuTile(
+                    icon: Icons.lock,
+                    title: 'change_password'.tr,
+                    onTap: () {
+                      Get.off(ChangePasswordScreen());
+                    },
+                  ),
+                  const Divider(
+                    height: 1,
+                    color: Color.fromARGB(255, 235, 235, 235),
+                  ),
+                  _buildMenuTile(
+                    icon: Icons.logout,
+                    title: 'logout'.tr,
+                    color: Colors.red,
+                    onTap: () {
+                      Get.back();
+                      _showLogoutDialog();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    ).then((_) => _animController.reset());
+  }
+
+  Widget _buildMenuTile({
+    required IconData icon,
+    required String title,
+    Color? color,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: color ?? Colors.black87, size: 22),
+      title: Text(
+        title,
+        style: TextStyle(fontSize: 16, color: color ?? Colors.black87),
+      ),
+      onTap: onTap,
+      contentPadding: EdgeInsets.zero,
+      minLeadingWidth: 30,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

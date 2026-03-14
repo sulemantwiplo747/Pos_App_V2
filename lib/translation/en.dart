@@ -152,6 +152,7 @@ const Map<String, String> en = {
   "passwords_not_match": "Passwords do not match",
   "update_password": "Update Password",
   'transaction_limit_text': 'Max transaction limit SAR @limit',
+  'per_day_transaction_limit_text': 'Per day: @limit transactions',
   'change_limit': 'Change limit',
   'set_transaction_limit': 'Set Transaction Limit',
   'adjust_daily_limit': 'Adjust your daily transaction limit',
@@ -185,6 +186,8 @@ const Map<String, String> en = {
   "reverse_limit": "You can reverse up to SAR @amount",
   "transfer_limit": "You can transfer up to SAR @amount",
   "delete_family_member": "Delete Family Member",
+  "member_deleted": "Member deleted successfully",
+  "failed_to_delete_member": "Failed to delete member",
   "warning": "Warning",
   "delete_member_warning":
       "All remaining balance of this family member will be permanently lost and cannot be recovered.",

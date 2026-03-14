@@ -13,6 +13,7 @@ import 'package:pos_v2/widgets/login_wrapper.dart';
 import '../constants/shimmer.dart';
 import '../controllers/bottom_nav_controller.dart';
 import '../controllers/home_controller.dart';
+import '../controllers/wallet_controller.dart';
 import '../core/services/analytics_services.dart';
 import '../utils/snakbar_helper.dart' show SnackbarHelper;
 import '../widgets/custom_bottom_nav.dart';
@@ -55,7 +56,31 @@ class _HomeScreenState extends State<HomeScreen> {
       } else {
         _buildPageIfNeeded(index);
       }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _refreshTabData(index);
+      });
     });
+  }
+
+  void _refreshTabData(int index) {
+    switch (index) {
+      case 0:
+        controller.getCurrentBalance();
+        controller.getUserSales();
+        controller.getFamilyMember();
+        break;
+      case 1:
+        controller.getCurrentBalance();
+        if (Get.isRegistered<WalletController>()) {
+          final wc = Get.find<WalletController>();
+          wc.fetchTransactions();
+          wc.getTransactionLimit();
+        }
+        break;
+      case 2:
+        controller.getFamilyMember();
+        break;
+    }
   }
 
   void _buildPageIfNeeded(int index) {
@@ -141,12 +166,19 @@ class _HomePageContentState extends State<_HomePageContent> {
           final homeState = context.findAncestorStateOfType<_HomeScreenState>();
           homeState?._onItemTapped(1);
         },
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await controller.getCurrentBalance();
+            await controller.getFamilyMember();
+            await controller.getUserSales();
+          },
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               WalletCard(
                 balance: AppConstants.safeParseBalance(
                   AppConstants.currentBalance.toString(),
@@ -252,7 +284,8 @@ class _HomePageContentState extends State<_HomePageContent> {
                         }
                       },
                     ),
-            ],
+              ],
+            ),
           ),
         ),
       );

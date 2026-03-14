@@ -21,6 +21,7 @@ class WalletController extends GetxController {
   RxDouble currentBalance = 0.0.obs;
   RxBool isTransactionLoading = false.obs;
   RxDouble transactionLimit = 0.0.obs;
+  RxInt maxDailyTransaction = 0.obs;
   RxBool isChildLimitLoading = false.obs;
   RxDouble childMaxPerTransaction = 0.0.obs;
   RxInt childMaxDailyTransaction = 0.obs;
@@ -263,6 +264,11 @@ class WalletController extends GetxController {
         transactionLimit.value = AppConstants.parseToDouble(
           data['message']?['limits']?['max_per_transaction'],
         );
+        maxDailyTransaction.value = int.tryParse(
+              data['message']?['limits']?['max_daily_transaction']?.toString() ??
+                  '0',
+            ) ??
+            0;
       } else {
         SnackbarHelper.showError(data['message'] ?? "Error loading Limit");
       }

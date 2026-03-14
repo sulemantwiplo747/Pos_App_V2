@@ -28,6 +28,76 @@ class ShimmerBox extends StatelessWidget {
   }
 }
 
+class FamilyShimmer extends StatelessWidget {
+  const FamilyShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Owner tile
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                children: [
+                  const ShimmerBox(height: 46, width: 46, radius: 23),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const ShimmerBox(height: 18, width: 150, radius: 8),
+                        const SizedBox(height: 8),
+                        const ShimmerBox(height: 14, width: 100, radius: 8),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Lorem text
+            const ShimmerBox(height: 40, width: double.infinity, radius: 8),
+            const SizedBox(height: 30),
+            // Members header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const ShimmerBox(height: 20, width: 120, radius: 8),
+                const ShimmerBox(height: 32, width: 80, radius: 8),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Member tiles
+            ...List.generate(
+              4,
+              (i) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade100,
+                  child: Container(
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class HomeShimmer extends StatelessWidget {
   const HomeShimmer({super.key});
 

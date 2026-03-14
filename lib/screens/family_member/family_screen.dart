@@ -10,6 +10,7 @@ import 'package:pos_v2/screens/family_member/familt_member_title.dart';
 import 'package:pos_v2/screens/family_member/family_member_detail.dart';
 import 'package:pos_v2/widgets/login_wrapper.dart';
 
+import '../../constants/shimmer.dart';
 import '../../core/services/analytics_services.dart';
 import '../../utils/snakbar_helper.dart';
 import '../auth/register/register_main_screen.dart';
@@ -118,7 +119,7 @@ class FamilyScreen extends StatelessWidget {
         () => RefreshIndicator(
           onRefresh: controller.getFamilyMember,
           child: controller.isFamilyLoading.value
-              ? const Center(child: CircularProgressIndicator())
+              ? const FamilyShimmer()
               : _buildBody(),
         ),
       ),

@@ -362,15 +362,13 @@ class HomeController extends GetxController {
       );
 
       if (data['success'] == true) {
-        SnackbarHelper.showSuccess(
-          data['message']['message'] ?? 'Member deleted',
-        );
+        SnackbarHelper.showSuccess('member_deleted'.tr);
         await getFamilyMember();
       } else {
-        SnackbarHelper.showError(data['message'] ?? 'Failed to delete member');
+        SnackbarHelper.showError('failed_to_delete_member'.tr);
       }
     } catch (e) {
-      SnackbarHelper.showError("Something went wrong");
+      SnackbarHelper.showError('unexpected_error'.tr);
     } finally {
       deletingMemberId.value = -1;
     }

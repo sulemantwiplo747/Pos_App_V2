@@ -41,6 +41,8 @@ class RegisterController extends GetxController {
   RxBool isStoreLoading = false.obs;
   RxBool creatingUser = false.obs;
   RxBool uploadingImage = false.obs;
+  final RxBool showPassword = false.obs;
+  final RxBool showConfirmPassword = false.obs;
   Rx<DateTime?> dob = Rx<DateTime?>(null);
   final RxString selectedStore = ''.obs;
   final RxString selectedTenantId = ''.obs;
