@@ -223,12 +223,12 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
                             amount: widget.amount,
                             formsOfPayment: [
                               FormsOfPayment.googlePay,
-                              FormsOfPayment.applePay,
+                              // FormsOfPayment.applePay,
                               FormsOfPayment.cardOnSite,
                               FormsOfPayment.redirect,
                             ],
                             showPaymentDetails: true,
-                            theme: CheckoutTheme(uiMode: CustomerUiMode.light),
+                            // theme: CheckoutTheme(uiMode: CustomerUiMode.light),
                             paymentOptionsDisplaySettings:
                                 PaymentOptionsDisplaySettings(
                                   mode: PaymentOptionsDisplayMode.BOTTOM_SHEET,
