@@ -17,17 +17,27 @@ class MyQRDialog extends StatefulWidget {
 
 class _MyQRDialogState extends State<MyQRDialog>
     with SingleTickerProviderStateMixin {
-  String token = "";
   String qrData = "";
-  String userName = "";
+  String displayText = "";
+  bool useSmallText = false;
   late final Animation<double> _scaleAnimation;
   final ScreenshotController _screenshotController = ScreenshotController();
 
   @override
   void initState() {
-    token = AppConstants.currentUser.value!.userData!.tenantId ?? "";
-    qrData = "https://example.com/profile?token=$token";
-    userName = AppConstants.currentUser.value!.userData!.username ?? "";
+    final userData = AppConstants.currentUser.value!.userData!;
+    final currentCard = userData.currentCard?.trim();
+    final userName = userData.username ?? "";
+
+    if (currentCard == null || currentCard.isEmpty) {
+      qrData = userName.isNotEmpty ? userName : "user";
+      displayText = userName;
+      useSmallText = false;
+    } else {
+      qrData = currentCard;
+      displayText = currentCard;
+      useSmallText = true;
+    }
     _scaleAnimation = Tween<double>(begin: 0.7, end: 1.0).animate(
       CurvedAnimation(
         parent: widget.animationController,
@@ -49,7 +59,9 @@ class _MyQRDialogState extends State<MyQRDialog>
       name: 'qr.png',
       mimeType: 'image/png',
     );
-    await Share.shareXFiles([xfile], text: '${'my_qr_share_text'.tr}: $token');
+    await Share.shareXFiles([
+      xfile,
+    ], text: '${'my_qr_share_text'.tr}: $displayText');
   }
 
   @override
@@ -105,7 +117,7 @@ class _MyQRDialogState extends State<MyQRDialog>
                     ),
                     child: CachedNetworkImage(
                       imageUrl:
-                          'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=$qrData',
+                          'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${Uri.encodeComponent(qrData)}',
                       width: 200,
                       height: 200,
                       fit: BoxFit.contain,
@@ -128,14 +140,15 @@ class _MyQRDialogState extends State<MyQRDialog>
 
                   const SizedBox(height: 20),
 
-                  // Username Field
+                  // Display Field (username or current card)
                   TextField(
-                    controller: TextEditingController(text: userName)
+                    controller: TextEditingController(text: displayText)
                       ..selection = TextSelection.collapsed(
-                        offset: userName.length,
+                        offset: displayText.length,
                       ),
                     readOnly: true,
                     textAlign: TextAlign.center,
+                    maxLines: useSmallText ? 2 : 1,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: Colors.grey[100],
@@ -145,10 +158,10 @@ class _MyQRDialogState extends State<MyQRDialog>
                       ),
                       contentPadding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    style: const TextStyle(
-                      fontSize: 18,
+                    style: TextStyle(
+                      fontSize: useSmallText ? 12 : 18,
                       fontWeight: FontWeight.w500,
-                      letterSpacing: 1.2,
+                      letterSpacing: useSmallText ? 0.5 : 1.2,
                     ),
                   ),
                   const SizedBox(height: 20),

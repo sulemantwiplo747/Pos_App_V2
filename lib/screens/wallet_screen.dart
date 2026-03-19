@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pos_v2/constants/enums.dart';
+import 'package:pos_v2/controllers/home_controller.dart';
 import 'package:pos_v2/controllers/wallet_controller.dart';
+import 'package:pos_v2/widgets/app_error_widget.dart';
 import 'package:pos_v2/widgets/login_wrapper.dart';
 import 'package:pos_v2/widgets/wallet_card.dart';
 import 'package:pos_v2/widgets/wallet_transaction_tile.dart';
@@ -36,55 +38,66 @@ class WalletScreen extends StatelessWidget {
           Container(
             color: Colors.white,
             padding: const EdgeInsets.all(16),
-            child: WalletCard(
-              balance: AppConstants.safeParseBalance(
-                AppConstants.currentBalance.toString(),
+            child: Obx(
+              () => WalletCard(
+                balance: AppConstants.safeParseBalance(
+                  AppConstants.currentBalance.toString(),
+                ),
+                onRecharge: () {},
               ),
-              onRecharge: () {},
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            child: Obx(() {
-              return Row(
+
+          Obx(() {
+            final isChild =
+                AppConstants.currentUser.value?.userData?.parentId != null;
+            if (!isChild) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: Text(
-                      'transaction_limit_text'.trParams({
-                        'limit': controller.transactionLimit.value
-                            .toInt()
+                  Text(
+                    'transaction_limit_text'.trParams({
+                      'limit': controller.transactionLimit.value
+                          .toInt()
+                          .toString(),
+                    }),
+                    style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  ),
+                  if (controller.maxDailyTransaction.value > 0) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'per_day_transaction_limit_text'.trParams({
+                        'limit': controller.maxDailyTransaction.value
                             .toString(),
                       }),
                       style: const TextStyle(fontSize: 13, color: Colors.grey),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () =>
-                        controller.showLimitBottomSheet(context, controller),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.edit,
-                          size: 18,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'change_limit'.tr,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  ],
+                  // GestureDetector(
+                  //   onTap: () =>
+                  //       controller.showLimitBottomSheet(context, controller),
+                  //   child: Row(
+                  //     children: [
+                  //       Icon(
+                  //         Icons.edit,
+                  //         size: 18,
+                  //         color: Theme.of(context).primaryColor,
+                  //       ),
+                  //       const SizedBox(width: 4),
+                  //       Text(
+                  //         'change_limit'.tr,
+                  //         style: TextStyle(
+                  //           fontSize: 13,
+                  //           fontWeight: FontWeight.w600,
+                  //           color: Theme.of(context).primaryColor,
+                  //         ),
+                  //       ),
                 ],
-              );
-            }),
-          ),
-
+              ),
+            );
+          }),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Text(
@@ -98,9 +111,26 @@ class WalletScreen extends StatelessWidget {
                   controller.transactions.isEmpty) {
                 return _buildShimmerList();
               }
+              if (controller.fetchError.value != null &&
+                  controller.transactions.isEmpty) {
+                return AppErrorWidget(
+                  message: controller.fetchError.value!,
+                  onRetry: () async {
+                    await controller.fetchTransactions();
+                    if (Get.isRegistered<HomeController>()) {
+                      await Get.find<HomeController>().getCurrentBalance();
+                    }
+                  },
+                );
+              }
               if (controller.transactions.isEmpty) {
                 return RefreshIndicator(
-                  onRefresh: () => controller.fetchTransactions(),
+                  onRefresh: () async {
+                    await controller.fetchTransactions();
+                    if (Get.isRegistered<HomeController>()) {
+                      await Get.find<HomeController>().getCurrentBalance();
+                    }
+                  },
                   child: ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
@@ -156,7 +186,12 @@ class WalletScreen extends StatelessWidget {
               // }
 
               return RefreshIndicator(
-                onRefresh: () => controller.fetchTransactions(),
+                onRefresh: () async {
+                  await controller.fetchTransactions();
+                  if (Get.isRegistered<HomeController>()) {
+                    await Get.find<HomeController>().getCurrentBalance();
+                  }
+                },
                 child: ListView.builder(
                   controller: scrollController,
                   physics: const AlwaysScrollableScrollPhysics(),

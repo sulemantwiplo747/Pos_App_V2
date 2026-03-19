@@ -2,10 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class SnackbarHelper {
+  static DateTime? _lastErrorShownAt;
+  static const _errorThrottleDuration = Duration(seconds: 2);
+
+  /// Prevents showing multiple error toasts in quick succession (e.g. when several APIs fail at once).
+  static bool _shouldThrottleError() {
+    final now = DateTime.now();
+    if (_lastErrorShownAt != null &&
+        now.difference(_lastErrorShownAt!) < _errorThrottleDuration) {
+      return true;
+    }
+    _lastErrorShownAt = now;
+    return false;
+  }
+
   // Success snackbar
   static void showSuccess(String message) {
     Get.snackbar(
-      "Success",
+      "success".tr,
       message,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.green.shade600,
@@ -21,8 +35,9 @@ class SnackbarHelper {
 
   // Error snackbar
   static void showError(String message) {
+    if (_shouldThrottleError()) return;
     Get.snackbar(
-      "Error",
+      "error".tr,
       message,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.red.shade600,

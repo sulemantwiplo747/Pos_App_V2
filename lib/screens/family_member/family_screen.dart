@@ -8,8 +8,10 @@ import 'package:pos_v2/controllers/home_controller.dart';
 import 'package:pos_v2/models/family_member_model.dart';
 import 'package:pos_v2/screens/family_member/familt_member_title.dart';
 import 'package:pos_v2/screens/family_member/family_member_detail.dart';
+import 'package:pos_v2/widgets/app_error_widget.dart';
 import 'package:pos_v2/widgets/login_wrapper.dart';
 
+import '../../constants/shimmer.dart';
 import '../../core/services/analytics_services.dart';
 import '../../utils/snakbar_helper.dart';
 import '../auth/register/register_main_screen.dart';
@@ -115,12 +117,22 @@ class FamilyScreen extends StatelessWidget {
     return LoginWrapper(
       title: "family".tr,
       child: Obx(
-        () => RefreshIndicator(
-          onRefresh: controller.getFamilyMember,
-          child: controller.isFamilyLoading.value
-              ? const Center(child: CircularProgressIndicator())
-              : _buildBody(),
-        ),
+        () {
+          if (controller.isFamilyLoading.value) {
+            return const FamilyShimmer();
+          }
+          if (controller.familyError.value != null ||
+              AppConstants.currentUser.value?.userData == null) {
+            return AppErrorWidget(
+              message: controller.familyError.value ?? 'error_loading_family'.tr,
+              onRetry: () => controller.getFamilyMember(),
+            );
+          }
+          return RefreshIndicator(
+            onRefresh: controller.getFamilyMember,
+            child: _buildBody(),
+          );
+        },
       ),
     );
   }

@@ -1,8 +1,12 @@
 // profile_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pos_v2/constants/app_constants.dart';
 import 'package:pos_v2/controllers/edit_profile_controller.dart';
+import 'package:pos_v2/controllers/home_controller.dart';
+import 'package:pos_v2/widgets/app_error_widget.dart';
+import 'package:pos_v2/widgets/app_screen_wrapper.dart';
 
 import '../../core/services/analytics_services.dart';
 import '../../models/family_member_model.dart';
@@ -47,6 +51,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _cityController.text = m.city ?? "";
       _addressController.text = "";
       _usernameController.text = m.username ?? "";
+      _addressController.text = m.address ?? "";
       _govIdController.text = m.govId ?? "";
     } else {
       final user = AppConstants.currentUser.value?.userData;
@@ -176,21 +181,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          'edit_profile'.tr,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+    if (widget.member == null &&
+        AppConstants.currentUser.value?.userData == null) {
+      return AppScreenWrapper(
+        title: 'edit_profile'.tr,
+        child: AppErrorWidget(
+          message: 'error_loading_profile'.tr,
+          onRetry: () async {
+            if (Get.isRegistered<HomeController>()) {
+              await Get.find<HomeController>().getUserData();
+              setState(() {});
+            }
+          },
         ),
-      ),
-      body: Form(
+      );
+    }
+    return AppScreenWrapper(
+      title: 'edit_profile'.tr,
+      child: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -210,7 +218,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 'email'.tr,
                 Icons.email,
                 keyboardType: TextInputType.emailAddress,
-                validator: _emailValidator,
+                validator: widget.member != null
+                    ? _optionalEmailValidator
+                    : _emailValidator,
               ),
               const SizedBox(height: 16),
               _buildTextField(
@@ -225,9 +235,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 _govIdController,
                 'government_id'.tr,
                 Icons.numbers,
-                readOnly: true,
-                keyboardType: TextInputType.emailAddress,
-                validator: _emailValidator,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
+                ],
+                validator: _govIdValidator,
               ),
               const SizedBox(height: 16),
               _buildTextField(
@@ -255,8 +268,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 16),
               _buildTextField(_cityController, 'city'.tr, Icons.location_city),
+              // if (widget.member == null) ...[
               const SizedBox(height: 16),
               _buildTextField(_addressController, 'address'.tr, Icons.home),
+              // ],
               const SizedBox(height: 24),
 
               const SizedBox(height: 32),
@@ -320,6 +335,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     VoidCallback? onTap,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return TextFormField(
       controller: controller,
@@ -327,6 +343,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       obscureText: obscureText,
       keyboardType: keyboardType,
       onTap: onTap,
+      inputFormatters: inputFormatters,
       decoration: _inputDecoration(label, icon),
       validator:
           validator ?? (v) => v?.trim().isEmpty ?? true ? 'required'.tr : null,
@@ -347,6 +364,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (value == null || value.isEmpty) return 'enter_email'.tr;
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
       return 'invalid_email'.tr;
+    return null;
+  }
+
+  String? _optionalEmailValidator(String? value) {
+    if (value == null || value.isEmpty) return null;
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
+      return 'invalid_email'.tr;
+    return null;
+  }
+
+  String? _govIdValidator(String? value) {
+    if (value == null || value.isEmpty) return 'gov_id_required'.tr;
+    if (!RegExp(r'^[0-9]+$').hasMatch(value)) return 'gov_id_numbers_only'.tr;
+    if (value.length != 10) return 'gov_id_10_digits'.tr;
     return null;
   }
 

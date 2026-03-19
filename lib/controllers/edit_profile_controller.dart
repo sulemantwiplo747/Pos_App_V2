@@ -8,6 +8,8 @@ import 'package:pos_v2/core/services/api_services.dart';
 
 import '../constants/api_urls.dart';
 import '../constants/app_constants.dart';
+import '../models/family_member_model.dart';
+import '../screens/family_member/family_member_detail.dart';
 import '../utils/snakbar_helper.dart';
 
 class EditProfileController extends GetxController {
@@ -58,7 +60,10 @@ class EditProfileController extends GetxController {
       );
 
       if (response['success'] == true) {
-        HomeController controller = Get.find();
+        if (!Get.isRegistered<HomeController>()) {
+          Get.put(HomeController(), permanent: true);
+        }
+        final controller = Get.find<HomeController>();
         controller.getUserData();
         loadUserImage();
         SnackbarHelper.showSuccess("Profile image uploaded successfully!");
@@ -107,7 +112,10 @@ class EditProfileController extends GetxController {
       );
 
       if (response['success'] == true) {
-        final HomeController homeController = Get.find<HomeController>();
+        if (!Get.isRegistered<HomeController>()) {
+          Get.put(HomeController(), permanent: true);
+        }
+        final homeController = Get.find<HomeController>();
         await homeController.getUserData();
         Get.back();
         SnackbarHelper.showSuccess("Profile updated successfully");
@@ -141,7 +149,7 @@ class EditProfileController extends GetxController {
       final headers = await AppConstants.getAuthHeaders();
       final body = {
         "name": name,
-        "email": email,
+        if (email.trim().isNotEmpty) "email": email,
         "customer_id": memberId,
         "phone": phone,
         "gov_id": govId,
@@ -158,10 +166,27 @@ class EditProfileController extends GetxController {
       );
 
       if (response['success'] == true) {
-        final HomeController homeController = Get.find<HomeController>();
-        await homeController.getUserData();
-        Get.back();
-        SnackbarHelper.showSuccess("Profile updated successfully");
+        if (!Get.isRegistered<HomeController>()) {
+          Get.put(HomeController(), permanent: true);
+        }
+        final homeController = Get.find<HomeController>();
+        await homeController.getFamilyMember();
+        Accounts? updatedMember;
+        for (final a
+            in AppConstants.familyMembers.value?.message?.accounts ?? []) {
+          if (a.id.toString() == memberId) {
+            updatedMember = a;
+            break;
+          }
+        }
+        if (updatedMember != null) {
+          Get.until((route) => route.isFirst);
+          Get.to(() => FamilyMemberDetailScreen(member: updatedMember!));
+          SnackbarHelper.showSuccess("Profile updated successfully");
+        } else {
+          Get.back();
+          SnackbarHelper.showSuccess("Profile updated successfully");
+        }
       } else {
         SnackbarHelper.showError(
           response['message'] ?? "Profile update failed",

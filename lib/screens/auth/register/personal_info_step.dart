@@ -49,16 +49,18 @@ class PersonalInfoStep extends StatelessWidget {
           controller: controller.usernameController,
           validator: (v) => controller.validateRequired(v, "username".tr),
         ),
-        if (!controller.isFamilyMember) const SizedBox(height: 20),
 
-        if (!controller.isFamilyMember)
-          _buildTextField(
-            label: 'email'.tr,
-            icon: Icons.email,
-            controller: controller.emailController,
-            validator: controller.validateEmail,
-            keyboardType: TextInputType.emailAddress,
-          ),
+        const SizedBox(height: 20),
+
+        _buildTextField(
+          label: 'email'.tr,
+          icon: Icons.email,
+          controller: controller.emailController,
+          validator: controller.isFamilyMember
+              ? controller.validateOptionalEmail
+              : controller.validateEmail,
+          keyboardType: TextInputType.emailAddress,
+        ),
 
         const SizedBox(height: 20),
 
@@ -117,30 +119,57 @@ class PersonalInfoStep extends StatelessWidget {
         const SizedBox(height: 20),
 
         /// Password
-        _buildTextField(
-          label: 'password'.tr,
-          icon: Icons.lock,
-          controller: controller.passwordController,
-          validator: controller.validatePassword,
-          obscureText: true,
-        ),
+        Obx(() {
+          return TextFormField(
+            controller: controller.passwordController,
+            obscureText: !controller.showPassword.value,
+            validator: controller.validatePassword,
+            decoration: _inputDecoration("password".tr, Icons.lock).copyWith(
+              suffixIcon: IconButton(
+                icon: Icon(
+                  controller.showPassword.value
+                      ? Icons.visibility
+                      : Icons.visibility_off,
+                ),
+                onPressed: () {
+                  controller.showPassword.value =
+                      !controller.showPassword.value;
+                },
+              ),
+            ),
+          );
+        }),
 
         const SizedBox(height: 20),
 
         /// Confirm Password
-        TextFormField(
-          obscureText: true,
-          decoration: _inputDecoration(
-            "confirm_password".tr,
-            Icons.lock_outline,
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) return "confirm_password".tr;
-            if (value != controller.passwordController.text)
-              return "password_mismatch".tr;
-            return null;
-          },
-        ),
+        Obx(() {
+          return TextFormField(
+            obscureText: !controller.showConfirmPassword.value,
+            decoration: _inputDecoration(
+              "confirm_password".tr,
+              Icons.lock_outline,
+            ).copyWith(
+              suffixIcon: IconButton(
+                icon: Icon(
+                  controller.showConfirmPassword.value
+                      ? Icons.visibility
+                      : Icons.visibility_off,
+                ),
+                onPressed: () {
+                  controller.showConfirmPassword.value =
+                      !controller.showConfirmPassword.value;
+                },
+              ),
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) return "confirm_password".tr;
+              if (value != controller.passwordController.text)
+                return "password_mismatch".tr;
+              return null;
+            },
+          );
+        }),
 
         const SizedBox(height: 20),
         Text(

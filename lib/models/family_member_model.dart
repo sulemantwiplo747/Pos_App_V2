@@ -56,6 +56,7 @@ class Accounts {
   String? country;
   String? city;
   String? dob;
+  String? address;
   String? createdAt;
   ImageUrl? imageUrl;
   int? remainingBalance;
@@ -72,6 +73,7 @@ class Accounts {
     this.city,
     this.dob,
     this.createdAt,
+    this.address,
     this.imageUrl,
     this.remainingBalance,
     this.media,
@@ -87,6 +89,7 @@ class Accounts {
     country = json['country'];
     city = json['city'];
     dob = json['dob'];
+    address = json['address'];
     createdAt = json['created_at'];
     remainingBalance = json['remaining_balance'];
 
@@ -126,7 +129,7 @@ class Accounts {
     if (imageUrl != null && (imageUrl!.imageUrls?.isNotEmpty ?? false)) {
       data['image_url'] = imageUrl!.toJson();
     } else {
-      data['image_url'] = []; 
+      data['image_url'] = [];
     }
 
     data['media'] = media?.map((v) => v.toJson()).toList() ?? [];

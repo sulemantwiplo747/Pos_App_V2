@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pos_v2/constants/app_colors.dart';
+import 'package:pos_v2/widgets/app_screen_wrapper.dart';
 import 'package:pos_v2/controllers/bottom_nav_controller.dart';
 import 'package:pos_v2/controllers/home_controller.dart';
 import 'package:pos_v2/controllers/wallet_controller.dart';
@@ -59,9 +60,9 @@ class _PaymentResultScreenState extends State<PaymentResultScreen>
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) _navigateToHome();
       },
-      child: Scaffold(
+      child: AppScreenWrapper(
         backgroundColor: const Color.fromARGB(255, 236, 236, 236),
-        body: Center(
+        child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Container(
@@ -155,7 +156,7 @@ class _PaymentResultScreenState extends State<PaymentResultScreen>
             ),
           ),
         ),
-      ),
+    ),
     );
   }
 

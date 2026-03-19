@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants/app_constants.dart';
+import '../../widgets/app_screen_wrapper.dart';
 import '../../controllers/recharge_controller.dart';
 import '../../widgets/wallet_card.dart';
 
@@ -15,24 +16,9 @@ class WalletRechargeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = AppConstants.currentUser.value?.userData;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-
-      // ✅ AppBar same as Profile
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          "recharge_wallet".tr,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-      ),
-
-      body: SingleChildScrollView(
+    return AppScreenWrapper(
+      title: "recharge_wallet".tr,
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

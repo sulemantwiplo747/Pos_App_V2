@@ -12,7 +12,9 @@ import 'package:pos_v2/widgets/login_wrapper.dart';
 
 import '../constants/shimmer.dart';
 import '../controllers/bottom_nav_controller.dart';
+import '../widgets/app_error_widget.dart';
 import '../controllers/home_controller.dart';
+import '../controllers/wallet_controller.dart';
 import '../core/services/analytics_services.dart';
 import '../utils/snakbar_helper.dart' show SnackbarHelper;
 import '../widgets/custom_bottom_nav.dart';
@@ -50,8 +52,33 @@ class _HomeScreenState extends State<HomeScreen> {
     _buildPageIfNeeded(0);
     controller.getCurrentBalance();
     ever(navController.currentIndex, (index) {
-      _buildPageIfNeeded(index);
+      if (index == 1) {
+        _pageCache[1] = _pageBuilders[1]!();
+      } else {
+        _buildPageIfNeeded(index);
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _refreshTabData(index);
+      });
     });
+  }
+
+  void _refreshTabData(int index) {
+    switch (index) {
+      case 0:
+        controller.getCurrentBalance();
+        controller.getUserSales();
+        controller.getFamilyMember();
+        break;
+      case 1:
+        controller.getCurrentBalance();
+        // WalletController.onInit already calls fetchTransactions + getTransactionLimit
+        // Avoid duplicate API calls (and duplicate error toasts) on tab switch
+        break;
+      case 2:
+        controller.getFamilyMember();
+        break;
+    }
   }
 
   void _buildPageIfNeeded(int index) {
@@ -129,6 +156,24 @@ class _HomePageContentState extends State<_HomePageContent> {
         return const HomeShimmer();
       }
 
+      // Show error with retry when initial load failed
+      if (controller.salesError.value != null && controller.sales == null) {
+        return LoginWrapper(
+          title: "pos".tr,
+          onWalletTap: () {
+            final homeState = context.findAncestorStateOfType<_HomeScreenState>();
+            homeState?._onItemTapped(1);
+          },
+          child: AppErrorWidget(
+            message: controller.salesError.value!,
+            onRetry: () async {
+              await controller.getUserSales();
+              if (controller.sales != null) controller.salesError.value = null;
+            },
+          ),
+        );
+      }
+
       final salesData = controller.sales?.message?.data ?? [];
 
       return LoginWrapper(
@@ -137,12 +182,19 @@ class _HomePageContentState extends State<_HomePageContent> {
           final homeState = context.findAncestorStateOfType<_HomeScreenState>();
           homeState?._onItemTapped(1);
         },
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await controller.getCurrentBalance();
+            await controller.getFamilyMember();
+            await controller.getUserSales();
+          },
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               WalletCard(
                 balance: AppConstants.safeParseBalance(
                   AppConstants.currentBalance.toString(),
@@ -248,7 +300,8 @@ class _HomePageContentState extends State<_HomePageContent> {
                         }
                       },
                     ),
-            ],
+              ],
+            ),
           ),
         ),
       );

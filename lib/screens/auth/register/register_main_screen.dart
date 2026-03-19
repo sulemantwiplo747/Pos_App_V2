@@ -141,8 +141,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _addMember() async {
     final isSuccess = await controller.addFamilyMember();
     if (isSuccess) {
-      final HomeController homeController = Get.find<HomeController>();
-      await homeController.getFamilyMember();
+      if (Get.isRegistered<HomeController>()) {
+        await Get.find<HomeController>().getFamilyMember();
+      }
       showSuccessDialog();
     }
   }
