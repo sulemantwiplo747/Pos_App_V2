@@ -206,4 +206,12 @@ const Map<String, String> en = {
   "max_per_transaction_label": "Max Amount Per Transaction (SAR)",
   "max_daily_transaction_label": "Max Daily Transactions",
   "fill_all_fields": "Please fill all fields",
+
+  "network_error": "Connection failed. Please check your internet and try again.",
+  "error_loading_family": "Could not load family members",
+  "error_loading_orders": "Could not load orders",
+  "error_loading_transactions": "Could not load transactions",
+  "retry": "Retry",
+  "error": "Error",
+  "error_loading_profile": "Could not load profile. Check your connection and try again.",
 };

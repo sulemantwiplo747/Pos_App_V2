@@ -200,4 +200,12 @@ const Map<String, String> ar = {
   "max_per_transaction_label": "الحد الأقصى للمعاملة (ريال)",
   "max_daily_transaction_label": "الحد الأقصى للمعاملات اليومية",
   "fill_all_fields": "يرجى ملء جميع الحقول",
+
+  "network_error": "فشل الاتصال. تحقق من الإنترنت وحاول مرة أخرى.",
+  "error_loading_family": "تعذر تحميل أعضاء العائلة",
+  "error_loading_orders": "تعذر تحميل الطلبات",
+  "error_loading_transactions": "تعذر تحميل المعاملات",
+  "retry": "إعادة المحاولة",
+  "error": "خطأ",
+  "error_loading_profile": "تعذر تحميل الملف الشخصي. تحقق من اتصالك وحاول مرة أخرى.",
 };

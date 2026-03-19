@@ -5,6 +5,7 @@ import 'package:pos_v2/constants/api_urls.dart';
 import 'package:pos_v2/controllers/home_controller.dart';
 import 'package:pos_v2/models/transaction_model.dart';
 
+import '../../../utils/error_message_helper.dart';
 import '../../../utils/snakbar_helper.dart';
 import '../constants/app_constants.dart';
 import '../core/services/analytics_services.dart';
@@ -30,6 +31,8 @@ class WalletController extends GetxController {
   int currentPage = 1;
   int perPage = 15;
   bool hasMorePages = true;
+  /// Set when fetchTransactions fails (initial load); null on success.
+  final fetchError = Rxn<String>();
 
   @override
   void onInit() {
@@ -203,6 +206,7 @@ class WalletController extends GetxController {
     if (!loadMore) {
       currentPage = 1;
       hasMorePages = true;
+      fetchError.value = null;
     }
 
     if (!hasMorePages) return;
@@ -239,14 +243,21 @@ class WalletController extends GetxController {
         hasMorePages =
             currentPage <= (model.message?.pagination?.lastPage ?? currentPage);
       } else {
-        SnackbarHelper.showError(
-          data['message'] ?? "Error fetching transactions",
-        );
+        final msg = data['message']?.toString() ?? 'error_loading_transactions'.tr;
+        if (!loadMore) fetchError.value = msg;
+        SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(
+          ApiException(message: msg, data: null),
+          fallbackKey: 'error_loading_transactions',
+        ));
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      final msg = ErrorMessageHelper.toUserMessage(e, fallbackKey: 'error_loading_transactions');
+      if (!loadMore) fetchError.value = msg;
+      SnackbarHelper.showError(msg);
     } catch (e) {
-      SnackbarHelper.showError("An unexpected error occurred");
+      final msg = ErrorMessageHelper.toUserMessage(e, fallbackKey: 'error_loading_transactions');
+      if (!loadMore) fetchError.value = msg;
+      SnackbarHelper.showError(msg);
     } finally {
       isLoading.value = false;
       isLoadMore.value = false;
@@ -270,12 +281,17 @@ class WalletController extends GetxController {
             ) ??
             0;
       } else {
-        SnackbarHelper.showError(data['message'] ?? "Error loading Limit");
+        SnackbarHelper.showError(
+          ErrorMessageHelper.toUserMessage(
+            ApiException(message: data['message']?.toString() ?? '', data: null),
+            fallbackKey: 'unexpected_error',
+          ),
+        );
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
     } catch (e) {
-      SnackbarHelper.showError("An unexpected error occurred");
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
     } finally {
       isTransactionLoading.value = false;
     }
@@ -298,12 +314,17 @@ class WalletController extends GetxController {
         Get.back();
         showSuccessPopup();
       } else {
-        SnackbarHelper.showError(data['message'] ?? "Error loading Limit");
+        SnackbarHelper.showError(
+          ErrorMessageHelper.toUserMessage(
+            ApiException(message: data['message']?.toString() ?? '', data: null),
+            fallbackKey: 'unexpected_error',
+          ),
+        );
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
     } catch (e) {
-      SnackbarHelper.showError("An unexpected error occurred");
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
     } finally {
       isTransactionLoading.value = false;
     }
@@ -335,9 +356,9 @@ class WalletController extends GetxController {
         tempChildMaxDailyTxn.value = maxDaily.toDouble().clamp(10.0, 200.0);
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
     } catch (e) {
-      SnackbarHelper.showError("An unexpected error occurred");
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
     } finally {
       isChildLimitLoading.value = false;
     }
@@ -378,12 +399,17 @@ class WalletController extends GetxController {
         Get.back();
         showSuccessPopup();
       } else {
-        SnackbarHelper.showError(data['message'] ?? "Error updating limit");
+        SnackbarHelper.showError(
+          ErrorMessageHelper.toUserMessage(
+            ApiException(message: data['message']?.toString() ?? '', data: null),
+            fallbackKey: 'unexpected_error',
+          ),
+        );
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
     } catch (e) {
-      SnackbarHelper.showError("An unexpected error occurred");
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
     } finally {
       isChildLimitLoading.value = false;
     }
@@ -473,13 +499,19 @@ class WalletController extends GetxController {
             (model.message?.pagination?.lastPage ?? customerCurrentPage);
       } else {
         SnackbarHelper.showError(
-          data['message'] ?? "Error fetching customer transactions",
+          ErrorMessageHelper.toUserMessage(
+            ApiException(
+              message: data['message']?.toString() ?? '',
+              data: null,
+            ),
+            fallbackKey: 'error_loading_transactions',
+          ),
         );
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e, fallbackKey: 'error_loading_transactions'));
     } catch (e) {
-      SnackbarHelper.showError("An unexpected error occurred");
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e, fallbackKey: 'error_loading_transactions'));
     } finally {
       isCustomerLoading.value = false;
       isCustomerLoadMore.value = false;

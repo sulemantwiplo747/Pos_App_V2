@@ -12,6 +12,7 @@ import 'package:pos_v2/widgets/login_wrapper.dart';
 
 import '../constants/shimmer.dart';
 import '../controllers/bottom_nav_controller.dart';
+import '../widgets/app_error_widget.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/wallet_controller.dart';
 import '../core/services/analytics_services.dart';
@@ -71,11 +72,8 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
       case 1:
         controller.getCurrentBalance();
-        if (Get.isRegistered<WalletController>()) {
-          final wc = Get.find<WalletController>();
-          wc.fetchTransactions();
-          wc.getTransactionLimit();
-        }
+        // WalletController.onInit already calls fetchTransactions + getTransactionLimit
+        // Avoid duplicate API calls (and duplicate error toasts) on tab switch
         break;
       case 2:
         controller.getFamilyMember();
@@ -156,6 +154,24 @@ class _HomePageContentState extends State<_HomePageContent> {
       // Show full screen shimmer on first load
       if (controller.isSaleLoading.value && controller.sales == null) {
         return const HomeShimmer();
+      }
+
+      // Show error with retry when initial load failed
+      if (controller.salesError.value != null && controller.sales == null) {
+        return LoginWrapper(
+          title: "pos".tr,
+          onWalletTap: () {
+            final homeState = context.findAncestorStateOfType<_HomeScreenState>();
+            homeState?._onItemTapped(1);
+          },
+          child: AppErrorWidget(
+            message: controller.salesError.value!,
+            onRetry: () async {
+              await controller.getUserSales();
+              if (controller.sales != null) controller.salesError.value = null;
+            },
+          ),
+        );
       }
 
       final salesData = controller.sales?.message?.data ?? [];

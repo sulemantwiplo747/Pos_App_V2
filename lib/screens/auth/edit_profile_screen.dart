@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pos_v2/constants/app_constants.dart';
 import 'package:pos_v2/controllers/edit_profile_controller.dart';
+import 'package:pos_v2/controllers/home_controller.dart';
+import 'package:pos_v2/widgets/app_error_widget.dart';
 import 'package:pos_v2/widgets/app_screen_wrapper.dart';
 
 import '../../core/services/analytics_services.dart';
@@ -179,6 +181,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.member == null &&
+        AppConstants.currentUser.value?.userData == null) {
+      return AppScreenWrapper(
+        title: 'edit_profile'.tr,
+        child: AppErrorWidget(
+          message: 'error_loading_profile'.tr,
+          onRetry: () async {
+            if (Get.isRegistered<HomeController>()) {
+              await Get.find<HomeController>().getUserData();
+              setState(() {});
+            }
+          },
+        ),
+      );
+    }
     return AppScreenWrapper(
       title: 'edit_profile'.tr,
       child: Form(

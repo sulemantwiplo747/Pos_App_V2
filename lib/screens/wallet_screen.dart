@@ -4,6 +4,7 @@ import 'package:lottie/lottie.dart';
 import 'package:pos_v2/constants/enums.dart';
 import 'package:pos_v2/controllers/home_controller.dart';
 import 'package:pos_v2/controllers/wallet_controller.dart';
+import 'package:pos_v2/widgets/app_error_widget.dart';
 import 'package:pos_v2/widgets/login_wrapper.dart';
 import 'package:pos_v2/widgets/wallet_card.dart';
 import 'package:pos_v2/widgets/wallet_transaction_tile.dart';
@@ -109,6 +110,18 @@ class WalletScreen extends StatelessWidget {
               if (controller.isLoading.value &&
                   controller.transactions.isEmpty) {
                 return _buildShimmerList();
+              }
+              if (controller.fetchError.value != null &&
+                  controller.transactions.isEmpty) {
+                return AppErrorWidget(
+                  message: controller.fetchError.value!,
+                  onRetry: () async {
+                    await controller.fetchTransactions();
+                    if (Get.isRegistered<HomeController>()) {
+                      await Get.find<HomeController>().getCurrentBalance();
+                    }
+                  },
+                );
               }
               if (controller.transactions.isEmpty) {
                 return RefreshIndicator(

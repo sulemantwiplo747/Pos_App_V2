@@ -11,6 +11,7 @@ import '../core/services/api_services.dart';
 import '../models/app_config_model.dart';
 import '../models/user_sales_model.dart';
 import '../utils/app_utils.dart';
+import '../utils/error_message_helper.dart';
 import '../utils/snakbar_helper.dart';
 
 class HomeController extends GetxController {
@@ -21,6 +22,12 @@ class HomeController extends GetxController {
   RxBool isFamilyLoading = false.obs;
   RxBool isSaleLoading = false.obs;
   RxBool isLoadMore = false.obs;
+
+  /// Set when getFamilyMember fails; null when success or not yet loaded.
+  final familyError = Rxn<String>();
+
+  /// Set when getUserSales fails (initial load); null when success or not yet loaded.
+  final salesError = Rxn<String>();
   UserSalesModel? sales;
 
   Rxn<UserSalesModel> memberSales = Rxn<UserSalesModel>();
@@ -120,9 +127,9 @@ class HomeController extends GetxController {
         );
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
     } catch (e) {
-      SnackbarHelper.showError("An unexpected error occurred");
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
     } finally {
       isMemberSaleLoading.value = false;
       isMemberLoadMore.value = false;
@@ -172,6 +179,7 @@ class HomeController extends GetxController {
     if (!loadMore) {
       currentPage = 1;
       hasMorePages = true;
+      salesError.value = null;
     }
 
     if (!hasMorePages) return;
@@ -211,12 +219,29 @@ class HomeController extends GetxController {
         hasMorePages =
             currentPage <= (model.message?.pagination?.lastPage ?? currentPage);
       } else {
-        SnackbarHelper.showError(data['message'] ?? "Error loading sales data");
+        final msg = data['message']?.toString() ?? 'error_loading_orders'.tr;
+        if (!loadMore) salesError.value = msg;
+        SnackbarHelper.showError(
+          ErrorMessageHelper.toUserMessage(
+            ApiException(message: msg, data: null),
+            fallbackKey: 'error_loading_orders',
+          ),
+        );
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      final msg = ErrorMessageHelper.toUserMessage(
+        e,
+        fallbackKey: 'error_loading_orders',
+      );
+      if (!loadMore) salesError.value = msg;
+      SnackbarHelper.showError(msg);
     } catch (e) {
-      SnackbarHelper.showError("An unexpected error occurred");
+      final msg = ErrorMessageHelper.toUserMessage(
+        e,
+        fallbackKey: 'error_loading_orders',
+      );
+      if (!loadMore) salesError.value = msg;
+      SnackbarHelper.showError(msg);
     } finally {
       if (loadMore) {
         isLoadMore.value = false;
@@ -251,9 +276,9 @@ class HomeController extends GetxController {
         SnackbarHelper.showError(data['message'] ?? "Error loading user");
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
     } catch (_) {
-      SnackbarHelper.showError("An unexpected error occurred");
+      SnackbarHelper.showError('unexpected_error'.tr);
     } finally {
       isUserLoading.value = false;
     }
@@ -304,18 +329,19 @@ class HomeController extends GetxController {
         SnackbarHelper.showError(data['message'] ?? "Error loading owner");
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
     } catch (e) {
-      SnackbarHelper.showError("An unexpected error occurred");
+      SnackbarHelper.showError('unexpected_error'.tr);
     } finally {
       isOwnerLoading.value = false;
     }
   }
 
   Future<void> getFamilyMember() async {
+    familyError.value = null;
     try {
       isFamilyLoading.value = true;
-      int? customerId = AppConstants.currentUser.value!.userData!.parentId;
+      int? customerId = AppConstants.currentUser.value?.userData?.parentId;
       final headers = await AppConstants.getAuthHeaders();
 
       final params = <String, dynamic>{};
@@ -333,14 +359,27 @@ class HomeController extends GetxController {
         final model = FamilyMemberModel.fromJson(data);
         AppConstants.familyMembers.value = model;
       } else {
+        final msg = data['message']?.toString() ?? 'error_loading_family'.tr;
+        familyError.value = msg;
         SnackbarHelper.showError(
-          data['message'] ?? "Error loading Family Members",
+          ErrorMessageHelper.toUserMessage(
+            ApiException(message: msg, data: null),
+            fallbackKey: 'error_loading_family',
+          ),
         );
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      familyError.value = ErrorMessageHelper.toUserMessage(
+        e,
+        fallbackKey: 'error_loading_family',
+      );
+      SnackbarHelper.showError(familyError.value!);
     } catch (e) {
-      SnackbarHelper.showError("An unexpected error occurred");
+      familyError.value = ErrorMessageHelper.toUserMessage(
+        e,
+        fallbackKey: 'error_loading_family',
+      );
+      SnackbarHelper.showError(familyError.value!);
     } finally {
       isFamilyLoading.value = false;
     }
@@ -368,7 +407,7 @@ class HomeController extends GetxController {
         SnackbarHelper.showError('failed_to_delete_member'.tr);
       }
     } catch (e) {
-      SnackbarHelper.showError('unexpected_error'.tr);
+      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
     } finally {
       deletingMemberId.value = -1;
     }
@@ -383,14 +422,14 @@ class HomeController extends GetxController {
       if (data['success'] == true) {
         AppConstants.currentBalance.value = data['message']['current_balance']
             .toString();
-        // AppConstants.currentBalance.value = "20"; 
+        // AppConstants.currentBalance.value = "20";
         AppConstants.currentBalance.refresh();
       } else {
         // SnackbarHelper.showError(data['message'] ?? "Error loading balance");
       }
-    } on ApiException catch (e) {
+    } on ApiException catch (_) {
       // SnackbarHelper.showError(e.message);
-    } catch (e) {
+    } catch (_) {
       // SnackbarHelper.showError("An unexpected error occurred");
     } finally {}
   }
