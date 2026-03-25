@@ -127,9 +127,9 @@ class HomeController extends GetxController {
         );
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
+      SnackbarHelper.showApiError(e);
     } catch (e) {
-      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
+      SnackbarHelper.showApiError(e);
     } finally {
       isMemberSaleLoading.value = false;
       isMemberLoadMore.value = false;
@@ -234,14 +234,14 @@ class HomeController extends GetxController {
         fallbackKey: 'error_loading_orders',
       );
       if (!loadMore) salesError.value = msg;
-      SnackbarHelper.showError(msg);
+      SnackbarHelper.showApiError(e, fallbackKey: 'error_loading_orders');
     } catch (e) {
       final msg = ErrorMessageHelper.toUserMessage(
         e,
         fallbackKey: 'error_loading_orders',
       );
       if (!loadMore) salesError.value = msg;
-      SnackbarHelper.showError(msg);
+      SnackbarHelper.showApiError(e, fallbackKey: 'error_loading_orders');
     } finally {
       if (loadMore) {
         isLoadMore.value = false;
@@ -276,7 +276,7 @@ class HomeController extends GetxController {
         SnackbarHelper.showError(data['message'] ?? "Error loading user");
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
+      SnackbarHelper.showApiError(e);
     } catch (_) {
       SnackbarHelper.showError('unexpected_error'.tr);
     } finally {
@@ -329,7 +329,7 @@ class HomeController extends GetxController {
         SnackbarHelper.showError(data['message'] ?? "Error loading owner");
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
+      SnackbarHelper.showApiError(e);
     } catch (e) {
       SnackbarHelper.showError('unexpected_error'.tr);
     } finally {
@@ -373,13 +373,13 @@ class HomeController extends GetxController {
         e,
         fallbackKey: 'error_loading_family',
       );
-      SnackbarHelper.showError(familyError.value!);
+      SnackbarHelper.showApiError(e, fallbackKey: 'error_loading_family');
     } catch (e) {
       familyError.value = ErrorMessageHelper.toUserMessage(
         e,
         fallbackKey: 'error_loading_family',
       );
-      SnackbarHelper.showError(familyError.value!);
+      SnackbarHelper.showApiError(e, fallbackKey: 'error_loading_family');
     } finally {
       isFamilyLoading.value = false;
     }
@@ -407,7 +407,7 @@ class HomeController extends GetxController {
         SnackbarHelper.showError('failed_to_delete_member'.tr);
       }
     } catch (e) {
-      SnackbarHelper.showError(ErrorMessageHelper.toUserMessage(e));
+      SnackbarHelper.showApiError(e);
     } finally {
       deletingMemberId.value = -1;
     }

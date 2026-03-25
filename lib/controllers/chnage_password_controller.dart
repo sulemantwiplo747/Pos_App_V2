@@ -56,9 +56,9 @@ class ChangePasswordController extends GetxController {
         SnackbarHelper.showError(data['message'] ?? 'try_again'.tr);
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      SnackbarHelper.showApiError(e);
     } catch (e) {
-      SnackbarHelper.showError('unexpected_error'.tr);
+      SnackbarHelper.showApiError(e);
     } finally {
       isLoading.value = false;
     }

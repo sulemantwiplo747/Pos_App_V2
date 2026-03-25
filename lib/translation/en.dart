@@ -207,7 +207,7 @@ const Map<String, String> en = {
   "max_daily_transaction_label": "Max Daily Transactions",
   "fill_all_fields": "Please fill all fields",
 
-  "network_error": "Connection failed. Please check your internet and try again.",
+  "network_error": "No internet connection",
   "error_loading_family": "Could not load family members",
   "error_loading_orders": "Could not load orders",
   "error_loading_transactions": "Could not load transactions",

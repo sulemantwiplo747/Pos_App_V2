@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pos_v2/utils/error_message_helper.dart';
 
 class SnackbarHelper {
   static DateTime? _lastErrorShownAt;
@@ -49,6 +50,12 @@ class SnackbarHelper {
       snackStyle: SnackStyle.FLOATING,
       animationDuration: const Duration(milliseconds: 500),
     );
+  }
+
+  /// Common API error handler for all screens/controllers.
+  /// Converts raw exceptions into short user-friendly messages.
+  static void showApiError(dynamic error, {String? fallbackKey}) {
+    showError(ErrorMessageHelper.toUserMessage(error, fallbackKey: fallbackKey));
   }
 
   // Optional: Info snackbar

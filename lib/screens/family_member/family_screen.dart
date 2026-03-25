@@ -116,24 +116,22 @@ class FamilyScreen extends StatelessWidget {
     });
     return LoginWrapper(
       title: "family".tr,
-      child: Obx(
-        () {
-          if (controller.isFamilyLoading.value) {
-            return const FamilyShimmer();
-          }
-          if (controller.familyError.value != null ||
-              AppConstants.currentUser.value?.userData == null) {
-            return AppErrorWidget(
-              message: controller.familyError.value ?? 'error_loading_family'.tr,
-              onRetry: () => controller.getFamilyMember(),
-            );
-          }
-          return RefreshIndicator(
-            onRefresh: controller.getFamilyMember,
-            child: _buildBody(),
+      child: Obx(() {
+        if (controller.isFamilyLoading.value) {
+          return const FamilyShimmer();
+        }
+        if (controller.familyError.value != null ||
+            AppConstants.currentUser.value?.userData == null) {
+          return AppErrorWidget(
+            message: controller.familyError.value ?? 'error_loading_family'.tr,
+            onRetry: () => controller.getFamilyMember(),
           );
-        },
-      ),
+        }
+        return RefreshIndicator(
+          onRefresh: controller.getFamilyMember,
+          child: _buildBody(),
+        );
+      }),
     );
   }
 
