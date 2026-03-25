@@ -118,12 +118,12 @@ class RegisterController extends GetxController {
       } else {
         stores.clear();
         SnackbarHelper.showError(
-          data['message']?.tr ?? 'error_fetching_stores'.tr,
+          data['message']?? 'error_fetching_stores'.tr,
         );
       }
     } on ApiException catch (e) {
       stores.clear();
-      SnackbarHelper.showError(e.message.tr);
+      SnackbarHelper.showApiError(e, fallbackKey: 'error_fetching_stores');
     } catch (e) {
       stores.clear();
       SnackbarHelper.showError('unexpected_error'.tr);
@@ -164,12 +164,12 @@ class RegisterController extends GetxController {
         return isSuccess;
       } else {
         SnackbarHelper.showError(
-          response['message']?.tr ?? 'error_creating_account'.tr,
+          response['message'] ?? 'error_creating_account'.tr,
         );
         return isSuccess;
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message.tr);
+      SnackbarHelper.showApiError(e, fallbackKey: 'error_creating_account');
       return isSuccess;
     } catch (e) {
       SnackbarHelper.showError('unexpected_error'.tr);
@@ -189,7 +189,8 @@ class RegisterController extends GetxController {
         "parent_id": AppConstants.currentUser.value!.userData!.id ?? "",
         "name": nameController.text.trim(),
         "username": usernameController.text.trim(),
-        if (emailController.text.trim().isNotEmpty) "email": emailController.text.trim(),
+        if (emailController.text.trim().isNotEmpty)
+          "email": emailController.text.trim(),
         "gov_id": govIdController.text.trim(),
         "phone": phoneController.text.trim(),
         "country": 'Riyad',
@@ -212,7 +213,7 @@ class RegisterController extends GetxController {
         return isSuccess;
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message.tr);
+      SnackbarHelper.showApiError(e, fallbackKey: 'error_creating_account');
       return isSuccess;
     } catch (e) {
       SnackbarHelper.showError('unexpected_error'.tr);
@@ -260,7 +261,7 @@ class RegisterController extends GetxController {
         Get.offAll(HomeScreen());
       } else {
         SnackbarHelper.showError(
-          response['message']?.tr ?? 'error_upload_image'.tr,
+          response['message'] ?? 'error_upload_image'.tr,
         );
       }
     } catch (e) {

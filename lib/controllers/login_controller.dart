@@ -59,9 +59,9 @@ class LoginController extends GetxController {
         SnackbarHelper.showError(data['message'] ?? "Login failed");
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      SnackbarHelper.showApiError(e);
     } catch (e) {
-      SnackbarHelper.showError("An unexpected error occurred");
+      SnackbarHelper.showApiError(e);
     } finally {
       isLoading.value = false;
     }

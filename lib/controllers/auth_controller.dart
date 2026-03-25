@@ -77,9 +77,9 @@ class AuthController extends GetxController {
         SnackbarHelper.showError(data['message'] ?? 'otp_send_failed'.tr);
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      SnackbarHelper.showApiError(e);
     } catch (e) {
-      SnackbarHelper.showError('unexpected_error'.tr);
+      SnackbarHelper.showApiError(e);
     } finally {
       isLoading.value = false;
     }
@@ -106,9 +106,9 @@ class AuthController extends GetxController {
         SnackbarHelper.showError(data['message'] ?? 'otp_send_failed'.tr);
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      SnackbarHelper.showApiError(e);
     } catch (e) {
-      SnackbarHelper.showError('unexpected_error'.tr);
+      SnackbarHelper.showApiError(e);
     } finally {
       isLoading.value = false;
     }

@@ -6,6 +6,7 @@ import '../constants/app_constants.dart';
 import '../core/services/api_services.dart';
 import '../models/intiate_payment_model.dart';
 import '../screens/recharge/ottu_checkout_screen.dart';
+import '../utils/snakbar_helper.dart';
 
 class WalletRechargeController extends GetxController {
   TextEditingController amountController = TextEditingController();
@@ -13,7 +14,7 @@ class WalletRechargeController extends GetxController {
   RxBool isLoading = false.obs;
   Future<void> startRecharge() async {
     if (amountController.text.isEmpty) {
-      Get.snackbar("Error", "Please enter amount");
+      SnackbarHelper.showError('enter_amount'.tr);
       return;
     }
 
@@ -61,14 +62,17 @@ class WalletRechargeController extends GetxController {
           ),
         );
       } else {
-        Get.snackbar("Error", "Payment initiation failed");
+        SnackbarHelper.showError('try_again'.tr);
       }
+    } on ApiException catch (e) {
+      print("❌ ApiException: $e");
+      SnackbarHelper.showApiError(e);
     } catch (e) {
       print("❌ Exception: $e");
-      Get.snackbar("Error", e.toString());
+      SnackbarHelper.showApiError(e);
+    } finally {
+      isLoading.value = false;
     }
-
-    isLoading.value = false;
   }
 
   // Future<void> startRecharge() async {

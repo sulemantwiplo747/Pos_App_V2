@@ -162,7 +162,7 @@ class WalletController extends GetxController {
         SnackbarHelper.showError(data['message'] ?? 'Reverse transfer failed');
       }
     } catch (e) {
-      SnackbarHelper.showError('Something went wrong');
+      SnackbarHelper.showApiError(e);
     } finally {
       isTransferring.value = false;
     }
@@ -196,7 +196,7 @@ class WalletController extends GetxController {
         SnackbarHelper.showError(data['message'] ?? 'Transfer failed');
       }
     } catch (e) {
-      SnackbarHelper.showError('Something went wrong');
+      SnackbarHelper.showApiError(e);
     } finally {
       isTransferring.value = false;
     }

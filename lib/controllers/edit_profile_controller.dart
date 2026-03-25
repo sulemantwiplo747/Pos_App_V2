@@ -73,7 +73,7 @@ class EditProfileController extends GetxController {
         );
       }
     } catch (e) {
-      SnackbarHelper.showError("Unexpected error occurred");
+      SnackbarHelper.showApiError(e, fallbackKey: 'error_upload_image');
     } finally {
       uploadingImage.value = false;
     }
@@ -125,9 +125,9 @@ class EditProfileController extends GetxController {
         );
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      SnackbarHelper.showApiError(e);
     } catch (e) {
-      SnackbarHelper.showError("An unexpected error occurred");
+      SnackbarHelper.showApiError(e);
     } finally {
       updatingProfile.value = false;
     }
@@ -193,9 +193,9 @@ class EditProfileController extends GetxController {
         );
       }
     } on ApiException catch (e) {
-      SnackbarHelper.showError(e.message);
+      SnackbarHelper.showApiError(e);
     } catch (e) {
-      SnackbarHelper.showError("An unexpected error occurred");
+      SnackbarHelper.showApiError(e);
     } finally {
       updatingProfile.value = false;
     }
