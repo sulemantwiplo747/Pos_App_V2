@@ -385,6 +385,46 @@ class HomeController extends GetxController {
     }
   }
 
+  RxBool deletingAccount = false.obs;
+
+  Future<void> deleteMyAccount() async {
+    try {
+      deletingAccount.value = true;
+      final headers = await AppConstants.getAuthHeaders();
+      final userId = AppConstants.currentUser.value?.userData?.id;
+
+      if (userId == null) {
+        SnackbarHelper.showError("User ID not found");
+        return;
+      }
+
+      final body = {
+        "account_id": userId,
+      };
+
+      final response = await api.post(
+        ApiUrls.deleteSubAccount,
+        body: body,
+        headers: headers,
+      );
+
+      if (response['success'] == true) {
+        SnackbarHelper.showSuccess('account_deleted'.tr);
+        await AppConstants.logout();
+      } else {
+        SnackbarHelper.showError(
+          response['message'] ?? 'unexpected_error'.tr,
+        );
+      }
+    } on ApiException catch (e) {
+      SnackbarHelper.showApiError(e);
+    } catch (e) {
+      SnackbarHelper.showApiError(e);
+    } finally {
+      deletingAccount.value = false;
+    }
+  }
+
   Future<void> deleteFamilyMember({
     required int accountId,
     required int parentCustomerId,

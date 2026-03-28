@@ -10,6 +10,7 @@ import 'package:pos_v2/screens/qr_scanner_screen.dart';
 
 import '../controllers/bottom_nav_controller.dart';
 import '../screens/auth/update_password.dart';
+import '../screens/auth/delete_account_screen.dart';
 import 'app_error_widget.dart';
 
 class LoginWrapper extends StatefulWidget {
@@ -338,6 +339,16 @@ class _LoginWrapperState extends State<LoginWrapper>
             title: 'change_password'.tr,
             onTap: () {
               Get.off(ChangePasswordScreen());
+            },
+          ),
+          const Divider(height: 1, color: Color.fromARGB(255, 235, 235, 235)),
+          _buildMenuTile(
+            icon: Icons.delete_forever,
+            title: 'delete_account'.tr,
+            color: Colors.red,
+            onTap: () {
+              Get.back(); // close the menu
+              Get.to(() => const DeleteAccountScreen());
             },
           ),
           const Divider(height: 1, color: Color.fromARGB(255, 235, 235, 235)),

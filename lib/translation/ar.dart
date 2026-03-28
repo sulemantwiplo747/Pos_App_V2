@@ -208,4 +208,7 @@ const Map<String, String> ar = {
   "retry": "إعادة المحاولة",
   "error": "خطأ",
   "error_loading_profile": "تعذر تحميل الملف الشخصي. تحقق من اتصالك وحاول مرة أخرى.",
+  "delete_account": "حذف الحساب",
+  "delete_account_confirmation": "هل أنت متأكد أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.",
+  "account_deleted": "تم حذف الحساب بنجاح",
 };
