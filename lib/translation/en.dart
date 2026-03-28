@@ -214,4 +214,7 @@ const Map<String, String> en = {
   "retry": "Retry",
   "error": "Error",
   "error_loading_profile": "Could not load profile. Check your connection and try again.",
+  "delete_account": "Delete Account",
+  "delete_account_confirmation": "Are you sure you want to delete your account? This action cannot be undone.",
+  "account_deleted": "Account deleted successfully",
 };
