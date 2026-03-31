@@ -109,8 +109,8 @@ const Map<String, String> en = {
   "member": "Member",
   "members_count": "Members @count/10",
   "max_family_members": "You cannot add more than 10 members",
-  "lorem_text":
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard.",
+  "family_description":
+      "Manage your family members' accounts, track their transactions, and set spending limits all in one place.",
   "view_member": "View Member",
   "edit_profile": "Edit Profile",
   "personal_info": "Personal Info",
