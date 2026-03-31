@@ -61,7 +61,7 @@ class FamilyShimmer extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            // Lorem text
+            // Family description text shimmer
             const ShimmerBox(height: 40, width: double.infinity, radius: 8),
             const SizedBox(height: 30),
             // Members header

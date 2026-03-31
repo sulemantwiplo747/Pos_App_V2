@@ -174,7 +174,7 @@ class FamilyScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             Text(
-              'lorem_text'.tr, // Translate key
+              'family_description'.tr, // Translate key
               style: const TextStyle(
                 fontSize: 14,
                 color: Color.fromARGB(255, 63, 63, 63),

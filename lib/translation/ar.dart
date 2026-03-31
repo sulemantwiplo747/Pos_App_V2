@@ -108,7 +108,7 @@ const Map<String, String> ar = {
   "member": "عضو",
   "members_count": "الأعضاء @count/10",
   "max_family_members": "لا يمكنك إضافة أكثر من 10 أعضاء",
-  "lorem_text": "لوريم إيبسوم هو ببساطة نص شكلي للطباعة والتنضيد.",
+  "family_description": "إدارة حسابات أفراد عائلتك، وتتبع معاملاتهم، وتحديد حدود الإنفاق في مكان واحد.",
   "view_member": "عرض العضو",
   "edit_profile": "تعديل الملف الشخصي",
   "personal_info": "المعلومات الشخصية",
