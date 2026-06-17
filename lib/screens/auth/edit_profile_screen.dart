@@ -228,6 +228,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 'user_name'.tr,
                 Icons.person,
                 readOnly: true,
+                lockedField: true,
                 validator: null,
               ),
               const SizedBox(height: 16),
@@ -331,23 +332,52 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     String label,
     IconData icon, {
     bool readOnly = false,
+    bool lockedField = false,
     bool obscureText = false,
     VoidCallback? onTap,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
     List<TextInputFormatter>? inputFormatters,
   }) {
-    return TextFormField(
+    final decoration = lockedField
+        ? _lockedInputDecoration(context, label, icon)
+        : _inputDecoration(label, icon);
+
+    Widget field = TextFormField(
       controller: controller,
-      readOnly: readOnly,
+      readOnly: lockedField ? true : readOnly,
       obscureText: obscureText,
       keyboardType: keyboardType,
       onTap: onTap,
       inputFormatters: inputFormatters,
-      decoration: _inputDecoration(label, icon),
+      canRequestFocus: !lockedField,
+      enableInteractiveSelection: !lockedField,
+      showCursor: !lockedField,
+      mouseCursor:
+          lockedField ? SystemMouseCursors.basic : null,
+      contextMenuBuilder: lockedField
+          ? (context, editableTextState) => const SizedBox.shrink()
+          : null,
+      style: lockedField
+          ? TextStyle(color: Colors.grey.shade800, fontSize: 16)
+          : null,
+      decoration: decoration,
       validator:
           validator ?? (v) => v?.trim().isEmpty ?? true ? 'required'.tr : null,
     );
+
+    if (lockedField) {
+      field = Theme(
+        data: Theme.of(context).copyWith(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          splashFactory: NoSplash.splashFactory,
+        ),
+        child: field,
+      );
+    }
+
+    return field;
   }
 
   InputDecoration _inputDecoration(String label, IconData icon) {
@@ -357,6 +387,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       prefixIcon: Icon(icon),
       filled: true,
       fillColor: Colors.white,
+    );
+  }
+
+  InputDecoration _lockedInputDecoration(
+    BuildContext context,
+    String label,
+    IconData icon,
+  ) {
+    final greyFill = Colors.grey.shade200;
+    final borderColor = Colors.grey.shade400;
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: borderColor),
+    );
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.grey.shade700),
+      border: border,
+      enabledBorder: border,
+      focusedBorder: border,
+      disabledBorder: border,
+      errorBorder: border,
+      focusedErrorBorder: border,
+      prefixIcon: Icon(icon, color: Colors.grey.shade600),
+      filled: true,
+      fillColor: greyFill,
     );
   }
 

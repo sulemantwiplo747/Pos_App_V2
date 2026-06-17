@@ -4,7 +4,6 @@ import 'package:lottie/lottie.dart';
 import 'package:pos_v2/constants/app_constants.dart';
 import 'package:pos_v2/screens/auth/register/register_main_screen.dart';
 import 'package:pos_v2/screens/family_member/family_screen.dart';
-import 'package:pos_v2/screens/more_screen.dart';
 import 'package:pos_v2/screens/recharge/wallert_recharge.dart';
 import 'package:pos_v2/screens/sales/sales_detail.dart';
 import 'package:pos_v2/screens/wallet_screen.dart';
@@ -14,7 +13,6 @@ import '../constants/shimmer.dart';
 import '../controllers/bottom_nav_controller.dart';
 import '../widgets/app_error_widget.dart';
 import '../controllers/home_controller.dart';
-import '../controllers/wallet_controller.dart';
 import '../core/services/analytics_services.dart';
 import '../utils/snakbar_helper.dart' show SnackbarHelper;
 import '../widgets/custom_bottom_nav.dart';
@@ -43,12 +41,14 @@ class _HomeScreenState extends State<HomeScreen> {
     0: () => const _HomePageContent(),
     1: () => WalletScreen(),
     2: () => FamilyScreen(),
-    3: () => const MoreScreen(),
   };
 
   @override
   void initState() {
     super.initState();
+    if (navController.currentIndex.value >= _pageBuilders.length) {
+      navController.currentIndex.value = 0;
+    }
     _buildPageIfNeeded(0);
     controller.getCurrentBalance();
     ever(navController.currentIndex, (index) {
@@ -61,6 +61,27 @@ class _HomeScreenState extends State<HomeScreen> {
         _refreshTabData(index);
       });
     });
+    // After payment: `changeIndex(1)` runs before `Get.offAll(HomeScreen())`, so the new
+    // `HomeScreen` mounts with wallet already selected but `ever` does not fire (no change).
+    // Build the active tab's page so IndexedStack is not empty.
+    _ensureActiveTabPageBuilt();
+  }
+
+  void _ensureActiveTabPageBuilt() {
+    final index = navController.currentIndex.value;
+    if (index == 1) {
+      if (!_pageCache.containsKey(1)) {
+        _pageCache[1] = _pageBuilders[1]!();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _refreshTabData(1);
+        });
+      }
+    } else if (!_pageCache.containsKey(index)) {
+      _buildPageIfNeeded(index);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _refreshTabData(index);
+      });
+    }
   }
 
   void _refreshTabData(int index) {
@@ -118,13 +139,31 @@ class _HomePageContent extends StatefulWidget {
   State<_HomePageContent> createState() => _HomePageContentState();
 }
 
-class _HomePageContentState extends State<_HomePageContent> {
+class _HomePageContentState extends State<_HomePageContent>
+    with SingleTickerProviderStateMixin {
   final controller = Get.find<HomeController>();
   final ScrollController _scrollController = ScrollController();
+  late final AnimationController _refreshSpinController;
+  late final Worker _saleLoadingWorker;
 
   @override
   void initState() {
     super.initState();
+    _refreshSpinController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 850),
+    );
+    _saleLoadingWorker = ever<bool>(controller.isSaleLoading, (loading) {
+      if (loading) {
+        _refreshSpinController.repeat();
+      } else {
+        _refreshSpinController.stop();
+        _refreshSpinController.reset();
+      }
+    });
+    if (controller.isSaleLoading.value) {
+      _refreshSpinController.repeat();
+    }
 
     // Load more when scrolled to bottom
     _scrollController.addListener(() {
@@ -144,6 +183,8 @@ class _HomePageContentState extends State<_HomePageContent> {
 
   @override
   void dispose() {
+    _saleLoadingWorker.dispose();
+    _refreshSpinController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -233,12 +274,39 @@ class _HomePageContentState extends State<_HomePageContent> {
                     ),
 
               const SizedBox(height: 30),
-              Text(
-                'recent_orders'.tr,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Text(
+                      'recent_orders'.tr,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: controller.isSaleLoading.value
+                        ? null
+                        : () => controller.getUserSales(),
+                    icon: RotationTransition(
+                      turns: _refreshSpinController,
+                      child: Icon(
+                        Icons.refresh_rounded,
+                        size: 22,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 36,
+                      minHeight: 36,
+                    ),
+                    visualDensity: VisualDensity.compact,
+                    tooltip: MaterialLocalizations.of(context).refreshIndicatorSemanticLabel,
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               salesData.isEmpty

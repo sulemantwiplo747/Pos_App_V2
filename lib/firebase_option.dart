@@ -53,13 +53,11 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDpaoJtR4UQ9fM0LODGASUCUBMN61miY7s',
-    appId: '1:967355636898:android:d3ad94c8310c13098a8bfb',
-    messagingSenderId: '967355636898',
-    projectId: 'point-of-sale-e3480',
-    databaseURL:
-        'https://flutterfire-e2e-tests-default-rtdb.europe-west1.firebasedatabase.app',
-    storageBucket: 'point-of-sale-e3480.firebasestorage.app',
+    apiKey: 'AIzaSyAVULZpVhIiWF9kKYya3jCyz2X4pQmeb7w',
+    appId: '1:779127018909:android:53d93fec341cc5aed14b74',
+    messagingSenderId: '779127018909',
+    projectId: 'fosshati-67ae4',
+    storageBucket: 'fosshati-67ae4.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(

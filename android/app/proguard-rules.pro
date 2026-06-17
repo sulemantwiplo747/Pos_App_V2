@@ -14,7 +14,7 @@
 }
 
 # Your package
--keep class com.fosshati.sa.** { *; }
+-keep class com.fosshati.ksa.** { *; }
 
 # Basic Android
 -keep public class * extends android.app.Activity

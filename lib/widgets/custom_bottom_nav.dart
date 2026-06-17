@@ -23,7 +23,6 @@ class CustomBottomNav extends StatelessWidget {
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'.tr),
         BottomNavigationBarItem(icon: Icon(Icons.wallet), label: 'wallet'.tr),
         BottomNavigationBarItem(icon: Icon(Icons.people), label: 'family'.tr),
-        // BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
       ],
     );
   }

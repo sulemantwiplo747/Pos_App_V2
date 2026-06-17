@@ -1,0 +1,44 @@
+TC ID,Module,Title,Preconditions,Test Steps,Test Data,Expected Result,Priority,Type
+TC-SPL-001,Splash & onboarding,First launch shows language selection,App installed; storage cleared (no locale),1. Launch app. 2. Wait for splash (~4s).,,User lands on Language screen (English / العربية).,High,Smoke
+TC-SPL-002,Splash & onboarding,Language required before login,On Language screen,1. Tap Continue without selecting a language.,,Error snackbar (language_error).,Medium,Regression
+TC-SPL-003,Splash & onboarding,Select language opens login,On Language screen,1. Select English or Arabic. 2. Save/continue.,,App navigates to Login screen; locale updates.,High,Smoke
+TC-SPL-004,Splash & onboarding,Returning user with token skips login,Valid token saved in GetStorage (AppKeys.userToken); locale set,1. Launch app. 2. Wait for splash.,,User lands on Home (not Login).,High,Smoke
+TC-LOG-001,Login,Empty username validation,On Login after language,1. Leave username empty. 2. Enter password (6+ chars). 3. Tap Login.,password: 123456,Inline error: Please enter your username.,High,Smoke
+TC-LOG-002,Login,Empty password validation,On Login,1. Enter username. 2. Leave password empty. 3. Tap Login.,username: validuser,Inline error: Please enter your password.,High,Smoke
+TC-LOG-003,Login,Password minimum length,On Login,1. Enter username. 2. Enter password with fewer than 6 characters. 3. Tap Login.,password: 12345,Inline error: Password must be at least 6 characters.,High,Smoke
+TC-LOG-004,Login,Successful login stores token and opens home,Valid API credentials,1. Enter valid username. 2. Enter valid password (6+). 3. Tap Login.,Use staging credentials,API success; token saved; navigation to HomeScreen (Get.offAll).,High,Smoke
+TC-LOG-005,Login,Failed login shows error,Known bad credentials,1. Enter invalid username/password. 2. Tap Login.,wrong / wrongpass,Error snackbar with server message or Login failed; user stays on Login.,High,Regression
+TC-LOG-006,Login,Network/API error handled,On Login; optional: airplane mode,1. Disable network or break API. 2. Tap Login with valid-format fields.,,User-friendly API error snackbar; loading ends.,Medium,Regression
+TC-LOG-007,Login,Navigate to forgot password,On Login,1. Tap Forgot password.,,Opens ForgotPasswordScreen; analytics ForgetPassword if enabled.,Medium,Regression
+TC-LOG-008,Login,Navigate to register,On Login,1. Tap Register.,,Opens RegisterScreen(isFamilyMember: false).,Medium,Regression
+TC-FPW-001,Forgot password,Empty username on send OTP,On Forgot password,1. Leave username empty. 2. Submit/send OTP.,,Validation error (required_field).,Medium,Regression
+TC-FPW-002,Forgot password,Send OTP success navigates to OTP screen,Valid username on server,1. Enter registered username/email. 2. Send OTP.,valid username,Success; navigates to OtpScreen; OTP timer starts (30s); resend disabled then enabled.,High,Regression
+TC-FPW-003,Forgot password,Verify OTP and new password success,On OTP screen after OTP sent,1. Enter 6-digit OTP. 2. Enter new password (6+). 3. Confirm/submit.,OTP from backend / new password,Success message; navigates to LoginScreen (Get.offAll).,High,Regression
+TC-FPW-004,Forgot password,OTP length validation,On OTP screen,1. Enter OTP not 6 digits. 2. Submit.,,Validation error (otp_six_digits).,Medium,Regression
+TC-REG-001,Register (main account),Multi-step flow: store → personal → photo,Not logged in or from Login,1. Complete Store step. 2. Personal info with valid form. 3. Select profile image. 4. Finish upload.,Per RegisterController/API,Registration completes per API; success flow as implemented.,High,Regression
+TC-REG-002,Register (family member),Sub-account: personal → photo,Logged-in parent; Add member from Home when under limit,1. Complete personal step. 2. Select image. 3. Upload.,,Sub-account created; family list refreshes.,High,Regression
+TC-REG-003,Register (family member),Max family members (10),Parent with 10 members,1. Tap Add member on Home.,,Error snackbar max_family_members_error.,Medium,Regression
+TC-REG-004,Register (family member),Sub-account cannot add member,Logged in as child (parentId set),1. Tap Add member.,,App switches to Family tab instead of register.,Medium,Regression
+TC-HOM-001,Home tab,Wallet card and recharge,Logged in,1. On Home. 2. Tap Recharge on wallet card.,,Opens WalletRechargeScreen.,High,Smoke
+TC-HOM-002,Home tab,Pull to refresh,Logged in on Home,1. Pull down on home content.,,Refreshes balance; family; sales list.,Medium,Regression
+TC-HOM-003,Home tab,Recent orders list and load more,User with multiple order pages,1. Scroll to bottom of orders.,,Next page loads; loader at bottom when loading.,Medium,Regression
+TC-HOM-004,Home tab,Empty orders state,User with no orders,1. Open Home.,,Shows Lottie no_data and no_orders_yet text.,Low,Regression
+TC-HOM-005,Home tab,Order detail navigation,User with at least one order,1. Tap an order row.,,Opens OrderDetailScreen; analytics OrderDetail.,Medium,Regression
+TC-HOM-006,Home tab,Sales API error with retry,Simulate sales API failure,1. Open Home. 2. On error screen tap Retry.,,getUserSales called again; list loads if API recovers.,Medium,Regression
+TC-NAV-001,Bottom navigation,Switch Home / Wallet / Family,Logged in,1. Tap Wallet tab. 2. Tap Family. 3. Tap Home.,,Correct tab content shown; Wallet tab refresh avoids duplicate errors per code comment.,High,Smoke
+TC-WAL-001,Wallet,Balance and transactions load,Logged in,1. Open Wallet tab.,,Balance card; transaction list or loading/shimmer; pagination near bottom.,High,Smoke
+TC-WAL-002,Wallet,Sub-account sees transaction limits,Logged in as family sub-account,1. Open Wallet tab.,,Shows transaction_limit_text and optional per_day limit.,Medium,Regression
+TC-WAL-003,Wallet,Recharge button on Wallet tab,Logged in,1. On Wallet; note WalletCard onRecharge is empty in code — verify UX.,,Document actual behavior: if recharge is only from Home card; file bug if missing.,Low,Exploratory
+TC-FAM-001,Family,List and member detail,Logged in parent with members,1. Open Family tab. 2. Open a member.,,Member detail screen; analytics if logged.,High,Smoke
+TC-FAM-002,Family,Delete member with confirmation,Parent; member exists,1. Trigger delete. 2. Confirm.,,API deleteSubAccount; list updates; warning if remainingBalance > 0.,Medium,Regression
+TC-FAM-003,Family,Cancel delete,Delete dialog open,1. Tap Cancel.,,Dialog closes; member not removed.,Low,Regression
+TC-MENU-001,LoginWrapper menu,Logout clears session,Logged in; open app menu from LoginWrapper,1. Choose Logout. 2. Confirm.,,POST logout with FCM token; token removed; HomeController/BottomNav disposed; LoginScreen.,High,Smoke
+TC-MENU-002,LoginWrapper menu,Language switch from menu,Logged in,1. Open language picker from menu. 2. Select other language.,,Locale updates; persisted to GetStorage locale key.,Medium,Regression
+TC-MENU-003,LoginWrapper menu,Edit profile / QR / scanner paths,Logged in,1. Open menu items for Edit profile; My QR; QR scanner if present.,,Respective screens/dialogs open without crash.,Medium,Regression
+TC-MENU-004,LoginWrapper menu,Change password screen,Logged in,1. Navigate to Update password from menu.,,Screen opens; submit flows per ChnagePasswordController/API.,Medium,Regression
+TC-MENU-005,LoginWrapper menu,Delete account screen,Logged in,1. Open Delete account from menu.,,Delete account screen opens; complete flow per policy.,Low,Regression
+TC-PAY-001,Wallet recharge & payment,Initiate payment / checkout,Logged in; valid amounts,1. From recharge enter amount (or quick amount). 2. Proceed through Ottu/checkout screens.,Amount within limits,Payment flow completes or shows server message; PaymentResultScreen if applicable.,High,Regression
+TC-PAY-002,Wallet recharge & payment,Payment cancelled or failed,During checkout,1. Cancel or fail payment in WebView/gateway.,,App shows appropriate result/error; balance consistent after refresh.,Medium,Regression
+TC-SEC-001,Security,Missing token on API calls,Token cleared mid-session,1. Trigger authenticated API with empty token.,,getAuthHeaders triggers logoutUser; user sent to Login.,High,Regression
+TC-LOC-001,Localization,Arabic RTL layout,Locale Arabic,1. Switch to Arabic. 2. Walk Login and Home.,,RTL where expected; strings from ar translations.,Medium,Regression
+TC-ANA-001,Analytics,Key screens logged,Firebase/analytics enabled,1. Open Splash; Login; Register; Order detail.,,Events appear per AnalyticsService.logScreen calls (verify in DebugView).,Low,Optional
