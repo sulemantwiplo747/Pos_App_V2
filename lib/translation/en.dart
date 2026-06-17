@@ -102,6 +102,7 @@ const Map<String, String> en = {
   "active_family_members": "@count family members are active right now.",
   "current_wallet_balance": "Current Wallet Balance",
   "recharge_wallet": "Recharge Wallet",
+  "home": "Home",
   "wallet": "Wallet",
   "recent_transactions": "Recent Transactions",
   "no_transaction_yet": "No transaction Yet",
@@ -159,7 +160,6 @@ const Map<String, String> en = {
   'confirm': 'Confirm',
   'success': 'Success',
   'limit_updated_success': 'Transaction limit updated successfully',
-  'home': 'Home',
   "no_family_members": "No family member",
   'delete_member': 'Delete Member',
   'confirm_remove_member':
@@ -202,7 +202,8 @@ const Map<String, String> en = {
   "new_bal": "New balance:",
   "set_limit": "Set Limit",
   "set_child_limit": "Set Child Limit",
-  "set_child_limit_desc": "Set the maximum transaction limit and daily transaction count for this member.",
+  "set_child_limit_desc":
+      "Set the maximum transaction limit and daily transaction count for this member.",
   "max_per_transaction_label": "Max Amount Per Transaction (SAR)",
   "max_daily_transaction_label": "Max Daily Transactions",
   "fill_all_fields": "Please fill all fields",
@@ -213,8 +214,10 @@ const Map<String, String> en = {
   "error_loading_transactions": "Could not load transactions",
   "retry": "Retry",
   "error": "Error",
-  "error_loading_profile": "Could not load profile. Check your connection and try again.",
+  "error_loading_profile":
+      "Could not load profile. Check your connection and try again.",
   "delete_account": "Delete Account",
-  "delete_account_confirmation": "Are you sure you want to delete your account? This action cannot be undone.",
+  "delete_account_confirmation":
+      "Are you sure you want to delete your account? This action cannot be undone.",
   "account_deleted": "Account deleted successfully",
 };

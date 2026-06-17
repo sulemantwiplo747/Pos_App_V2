@@ -1,4 +1,4 @@
-package com.fosshati.sa
+package com.fosshati.ksa
 
 import android.os.Bundle
 import android.view.WindowManager

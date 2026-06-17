@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "967355636898",
-    "project_id": "point-of-sale-e3480",
-    "storage_bucket": "point-of-sale-e3480.firebasestorage.app"
+    "project_number": "779127018909",
+    "project_id": "fosshati-67ae4",
+    "storage_bucket": "fosshati-67ae4.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:967355636898:android:d3ad94c8310c13098a8bfb",
+        "mobilesdk_app_id": "1:779127018909:android:53d93fec341cc5aed14b74",
         "android_client_info": {
-          "package_name": "com.fosshati.sa"
+          "package_name": "com.fosshati.ksa"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDpaoJtR4UQ9fM0LODGASUCUBMN61miY7s"
+          "current_key": "AIzaSyAVULZpVhIiWF9kKYya3jCyz2X4pQmeb7w"
         }
       ],
       "services": {

@@ -42,9 +42,13 @@ class _PaymentResultScreenState extends State<PaymentResultScreen>
     super.dispose();
   }
 
+  /// Wallet tab + fresh home stack after checkout. Order matters: index is set
+  /// before [Get.offAll]; [HomeScreen] must build the wallet page on init when
+  /// the tab is already selected (see `_ensureActiveTabPageBuilt` there)—fixes
+  /// the all-white screen after real payment and after "Complete".
   void _navigateToHome() {
     Get.find<BottomNavController>().changeIndex(1);
-    Get.offAll(() => HomeScreen());
+    Get.offAll(() => const HomeScreen());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Get.find<HomeController>().getCurrentBalance();
       if (Get.isRegistered<WalletController>()) {
