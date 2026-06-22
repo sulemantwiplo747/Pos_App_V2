@@ -18,11 +18,9 @@ import 'package:pos_v2/screens/splash_screen.dart';
 import 'translation/app_translations.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 }
 
-const _methodChannel = MethodChannel("com.ottu.sample/checkout");
-const _methodCheckoutHeight = "METHOD_CHECKOUT_HEIGHT";
 void main() async {
   await GetStorage.init();
   Get.put(ApiService(baseUrl: ApiUrls.baseUrl));

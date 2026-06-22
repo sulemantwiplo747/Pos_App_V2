@@ -1,35 +1,34 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:ottu_flutter_checkout/ottu_flutter_checkout.dart'
     hide TextStyle;
 import 'package:pos_v2/constants/api_urls.dart';
 import 'package:pos_v2/constants/app_constants.dart';
-import 'package:pos_v2/widgets/app_screen_wrapper.dart';
 import 'package:pos_v2/core/services/api_services.dart';
 import 'package:pos_v2/models/get_order_detail_model.dart';
 import 'package:pos_v2/screens/payment_result_screen.dart';
-
-const _methodChannel = MethodChannel("com.ottu.sample/checkout");
-const _methodCheckoutHeight = "METHOD_CHECKOUT_HEIGHT";
-// Ottu native SDK may send payment result with this method name
-const _methodPaymentSuccess = "METHOD_PAYMENT_SUCCESS_RESULT";
-const _methodPaymentError = "METHOD_PAYMENT_ERROR_RESULT";
-const _methodPaymentCancel = "METHOD_PAYMENT_CANCEL_RESULT";
+import 'package:pos_v2/utils/ottu_checkout_url.dart';
+import 'package:pos_v2/widgets/app_screen_wrapper.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class OttuCheckoutScreen extends StatefulWidget {
   final String sessionId;
   final double amount;
   final String orderNo;
+  final String? checkoutPageUrl;
+  final String? checkoutUrl;
 
   const OttuCheckoutScreen({
     super.key,
     required this.sessionId,
     required this.amount,
     required this.orderNo,
+    this.checkoutPageUrl,
+    this.checkoutUrl,
   });
 
   @override
@@ -37,40 +36,31 @@ class OttuCheckoutScreen extends StatefulWidget {
 }
 
 class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
-  final _checkoutHeight = ValueNotifier(500);
   bool _isWaitingForConfirmation = false;
   bool _pollingCancelled = false;
-  bool _methodChannelRegistered = false;
   static const _pollInterval = Duration(seconds: 2);
-  static const _maxPollAttempts = 45; // ~90 seconds max
+  static const _maxPollAttempts = 45;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_methodChannelRegistered) return;
-    _methodChannelRegistered = true;
+  bool get _useWebCheckoutOnIos =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 
-    _methodChannel.setMethodCallHandler((call) async {
-      if (call.method == _methodCheckoutHeight) {
-        _checkoutHeight.value = call.arguments as int;
-      } else if (call.method == _methodPaymentSuccess) {
-        if (!_isWaitingForConfirmation && mounted) {
-          _onPaymentSuccessFromOttu();
-        }
-      } else if (call.method == _methodPaymentError ||
-          call.method == _methodPaymentCancel) {
-        if (mounted) {
-          _onPaymentFailureFromOttu();
-        }
-      }
-    });
-  }
+  String? get _webCheckoutUrl => resolveOttuCheckoutUrl(
+        sessionId: widget.sessionId,
+        checkoutPageUrl: widget.checkoutPageUrl,
+        checkoutUrl: widget.checkoutUrl,
+      );
 
-  @override
-  void initState() {
-    super.initState();
-    debugPrint("sessionId:${widget.sessionId}");
-  }
+  CheckoutArguments get _checkoutArguments => CheckoutArguments(
+        merchantId: AppConstants.ottuMerchantId,
+        apiKey: AppConstants.paymentApiKey,
+        sessionId: widget.sessionId,
+        amount: widget.amount,
+        showPaymentDetails: true,
+        paymentOptionsDisplaySettings: PaymentOptionsDisplaySettings(
+          mode: PaymentOptionsDisplayMode.BOTTOM_SHEET,
+          visibleItemsCount: 5,
+        ),
+      );
 
   void _onPaymentSuccessFromOttu() {
     if (!mounted || _isWaitingForConfirmation) return;
@@ -95,7 +85,6 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
     var attempt = 0;
 
     while (!_pollingCancelled && mounted && attempt < _maxPollAttempts) {
-      // Wait before each call (except allow first call immediately)
       if (attempt > 0) {
         await Future.delayed(_pollInterval);
       }
@@ -125,7 +114,6 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
         }
       } catch (e) {
         debugPrint('get-order-details poll error: $e');
-        // continue polling
       }
       attempt++;
     }
@@ -147,21 +135,7 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     if (AppConstants.paymentApiKey.isEmpty) {
-      return AppScreenWrapper(
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.white,
-          title: const Text(
-            "Complete Payment",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          centerTitle: true,
-          iconTheme: const IconThemeData(color: Colors.black),
-        ),
+      return _buildShell(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -175,21 +149,45 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
       );
     }
 
-    return AppScreenWrapper(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        title: const Text(
-          "Complete Payment",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+    if (_useWebCheckoutOnIos) {
+      final checkoutUrl = _webCheckoutUrl;
+      if (checkoutUrl == null) {
+        return _buildShell(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                'Unable to open the payment page. Please try again later.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+              ),
+            ),
           ),
+        );
+      }
+
+      return _buildShell(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                _buildAmountHeader(),
+                Expanded(
+                  child: _OttuWebCheckoutView(
+                    checkoutUrl: checkoutUrl,
+                    onPaymentUrlDetected: _handleWebCheckoutUrl,
+                  ),
+                ),
+                _buildWebCheckoutActions(),
+              ],
+            ),
+            if (_isWaitingForConfirmation) _buildConfirmingOverlay(),
+          ],
         ),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
+      );
+    }
+
+    return _buildShell(
       child: Stack(
         children: [
           SingleChildScrollView(
@@ -197,36 +195,10 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: Colors.blue.shade100),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Recharge Amount",
-                        style: TextStyle(fontSize: 14, color: Colors.black54),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        "${widget.amount.toStringAsFixed(2)} SAR",
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                _buildAmountHeader(),
                 const SizedBox(height: 25),
                 Text(
-                  "Choose Payment Method",
+                  'Choose Payment Method',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -234,58 +206,33 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                ValueListenableBuilder(
-                  valueListenable: _checkoutHeight,
-                  builder: (context, height, child) {
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                        border: Border.all(color: Colors.grey.shade200),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                      child: SizedBox(
-                        height: height.toDouble(),
-                        child: OttuCheckoutWidget(
-                          
-                          arguments: CheckoutArguments(
-                            
-                            merchantId: AppConstants.ottuMerchantId,
-                            apiKey: AppConstants.paymentApiKey,
-                            sessionId: widget.sessionId,
-                            amount: widget.amount,
-                            formsOfPayment: [
-                              // FormsOfPayment.googlePay,
-                              // FormsOfPayment.applePay,
-                              FormsOfPayment.cardOnSite,
-                              // FormsOfPayment.redirect,
-                            ],
-                            showPaymentDetails: true,
-                            theme: CheckoutTheme(uiMode: CustomerUiMode.auto),
-                            paymentOptionsDisplaySettings:
-                                PaymentOptionsDisplaySettings(
-                                  mode: PaymentOptionsDisplayMode.BOTTOM_SHEET,
-                                  visibleItemsCount: 5,
-                                ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+                    ],
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: OttuCheckoutWidget(
+                      arguments: _checkoutArguments,
+                      successCallback: (_) => _onPaymentSuccessFromOttu(),
+                      cancelCallback: (_) => _onPaymentFailureFromOttu(),
+                      errorCallback: (_) => _onPaymentFailureFromOttu(),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 30),
                 Center(
                   child: Text(
-                    "🔒 Secure Payment Powered by Ottu",
+                    '🔒 Secure Payment Powered by Ottu',
                     style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                   ),
                 ),
@@ -296,6 +243,104 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildShell({required Widget child}) {
+    return AppScreenWrapper(
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Complete Payment',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildAmountHeader() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.blue.shade100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Recharge Amount',
+            style: TextStyle(fontSize: 14, color: Colors.black54),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '${widget.amount.toStringAsFixed(2)} SAR',
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWebCheckoutActions() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _isWaitingForConfirmation
+                  ? null
+                  : _onPaymentSuccessFromOttu,
+              child: const Text('I completed payment'),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '🔒 Secure Payment Powered by Ottu',
+            style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleWebCheckoutUrl(String? url) {
+    if (url == null || url.isEmpty || _isWaitingForConfirmation) return;
+    final lower = url.toLowerCase();
+    if (_looksLikePaymentSuccess(lower)) {
+      _onPaymentSuccessFromOttu();
+    } else if (_looksLikePaymentFailure(lower)) {
+      _onPaymentFailureFromOttu();
+    }
+  }
+
+  bool _looksLikePaymentSuccess(String url) {
+    return url.contains('success') ||
+        url.contains('completed') ||
+        url.contains('payment-success');
+  }
+
+  bool _looksLikePaymentFailure(String url) {
+    return url.contains('cancel') ||
+        url.contains('failure') ||
+        url.contains('failed') ||
+        url.contains('payment-fail');
   }
 
   Widget _buildConfirmingOverlay() {
@@ -351,6 +396,55 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _OttuWebCheckoutView extends StatefulWidget {
+  final String checkoutUrl;
+  final ValueChanged<String?> onPaymentUrlDetected;
+
+  const _OttuWebCheckoutView({
+    required this.checkoutUrl,
+    required this.onPaymentUrlDetected,
+  });
+
+  @override
+  State<_OttuWebCheckoutView> createState() => _OttuWebCheckoutViewState();
+}
+
+class _OttuWebCheckoutViewState extends State<_OttuWebCheckoutView> {
+  late final WebViewController _controller;
+  var _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (_) {
+            if (mounted) setState(() => _isLoading = true);
+          },
+          onPageFinished: (url) {
+            if (mounted) setState(() => _isLoading = false);
+            widget.onPaymentUrlDetected(url);
+          },
+          onUrlChange: (change) => widget.onPaymentUrlDetected(change.url),
+        ),
+      )
+      ..loadRequest(Uri.parse(widget.checkoutUrl));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        WebViewWidget(controller: _controller),
+        if (_isLoading)
+          const Center(child: CircularProgressIndicator()),
+      ],
     );
   }
 }

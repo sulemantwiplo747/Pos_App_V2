@@ -53,6 +53,7 @@ dependencies:
   flutter_local_notifications: ^19.5.0
   firebase_crashlytics: ^5.0.7
   firebase_analytics: ^12.1.1
+  webview_flutter: ^4.13.0
   ottu_flutter_checkout:
     # To use ottu_flutter_checkout SDK from a local source, uncomment the line below
     # and comment out the three lines specifying the Git repository.
@@ -60,7 +61,7 @@ dependencies:
 
     git:
       url: https://github.com/ottuco/ottu-flutter.git
-      ref: main
+      ref: 2.2.7
 
 dev_dependencies:
   flutter_test:
