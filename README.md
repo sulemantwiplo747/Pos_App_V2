@@ -20,4 +20,15 @@ https://www.transfernow.net/dl/20260617vTuMVCeM
 
 
 
-warning: ottu_checkout_sdk was compiled with optimization - stepping may behave oddly; variables may not be available.warning: ottu_checkout_sdk was compiled with a different Swift compiler (version '6.1.2.1') than the Swift compiler integrated into LLDB (version '6.2.3.3'). Swift expression evaluation requires a matching compiler and debugger from the same toolchain.Can't show file for stack frame : <DBGLLDBStackFrame: 0x7152a9a40> - stackNumber:2 - name:static SymbolFound.lookBindSymbol(_:symbolAddr:bindInfoCmd:bindInfoSize:imageSlide:allLoadDylds:). The file path does not exist on the file system: /Users/admin/sources/ottu/ottu-ios-checkout/ottu_checkout_sdk/Security/IOSSecuritySuite/FishHookChecker.swift
+
+Swift Compiler Error (Xcode): Value of type 'ButtonComponent' has no member 'borderColor'
+/Users/twiplo/.pub-cache/git/ottu-flutter-9bcdd5d4b2cc3daf6c243a75e5728dc10e838c1d/ios/ottu_flutter_checkout/Sources/ottu_flutter_checkout/ext.swift:212:15
+
+Swift Compiler Error (Xcode): Value of type 'ButtonComponent' has no member 'borderWidth'
+/Users/twiplo/.pub-cache/git/ottu-flutter-9bcdd5d4b2cc3daf6c243a75e5728dc10e838c1d/ios/ottu_flutter_checkout/Sources/ottu_flutter_checkout/ext.swift:216:15
+
+Swift Compiler Error (Xcode): Value of type 'ButtonComponent' has no member 'cornerRadius'
+/Users/twiplo/.pub-cache/git/ottu-flutter-9bcdd5d4b2cc3daf6c243a75e5728dc10e838c1d/ios/ottu_flutter_checkout/Sources/ottu_flutter_checkout/ext.swift:220:15
+
+Could not build the application for the simulator.
+Error launching application on iPhone 17 Pro.
