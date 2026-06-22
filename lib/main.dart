@@ -27,10 +27,7 @@ void main() async {
   await GetStorage.init();
   Get.put(ApiService(baseUrl: ApiUrls.baseUrl));
   WidgetsFlutterBinding.ensureInitialized();
-  // Platform.isAndroid
-  //     ? await Firebase.initializeApp()
-  //     :
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
   FlutterError.onError = (errorDetails) {
     FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);

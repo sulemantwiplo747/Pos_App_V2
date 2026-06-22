@@ -17,7 +17,8 @@ const _methodChannel = MethodChannel("com.ottu.sample/checkout");
 const _methodCheckoutHeight = "METHOD_CHECKOUT_HEIGHT";
 // Ottu native SDK may send payment result with this method name
 const _methodPaymentSuccess = "METHOD_PAYMENT_SUCCESS_RESULT";
-const _methodPaymentFailure = "METHOD_PAYMENT_FAILURE";
+const _methodPaymentError = "METHOD_PAYMENT_ERROR_RESULT";
+const _methodPaymentCancel = "METHOD_PAYMENT_CANCEL_RESULT";
 
 class OttuCheckoutScreen extends StatefulWidget {
   final String sessionId;
@@ -39,13 +40,16 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
   final _checkoutHeight = ValueNotifier(500);
   bool _isWaitingForConfirmation = false;
   bool _pollingCancelled = false;
+  bool _methodChannelRegistered = false;
   static const _pollInterval = Duration(seconds: 2);
   static const _maxPollAttempts = 45; // ~90 seconds max
 
   @override
-  void initState() {
-    super.initState();
-    print("sessionId:${widget.sessionId}");
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_methodChannelRegistered) return;
+    _methodChannelRegistered = true;
+
     _methodChannel.setMethodCallHandler((call) async {
       if (call.method == _methodCheckoutHeight) {
         _checkoutHeight.value = call.arguments as int;
@@ -53,12 +57,19 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
         if (!_isWaitingForConfirmation && mounted) {
           _onPaymentSuccessFromOttu();
         }
-      } else if (call.method == _methodPaymentFailure) {
+      } else if (call.method == _methodPaymentError ||
+          call.method == _methodPaymentCancel) {
         if (mounted) {
           _onPaymentFailureFromOttu();
         }
       }
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    debugPrint("sessionId:${widget.sessionId}");
   }
 
   void _onPaymentSuccessFromOttu() {
@@ -135,6 +146,35 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (AppConstants.paymentApiKey.isEmpty) {
+      return AppScreenWrapper(
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.white,
+          title: const Text(
+            "Complete Payment",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          centerTitle: true,
+          iconTheme: const IconThemeData(color: Colors.black),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              'Payment configuration is not ready. Please go back and try again.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+            ),
+          ),
+        ),
+      );
+    }
+
     return AppScreenWrapper(
       appBar: AppBar(
         elevation: 0,

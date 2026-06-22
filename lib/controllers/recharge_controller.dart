@@ -51,6 +51,11 @@ class WalletRechargeController extends GetxController {
         final sessionId = paymentModel.message?.sessionId;
         final orderNo = paymentModel.message?.orderNo;
 
+        if (AppConstants.paymentApiKey.isEmpty) {
+          SnackbarHelper.showError('try_again'.tr);
+          return;
+        }
+
         print("✅ Session Generated: $sessionId");
 
         // ✅ Open Ottu Checkout Screen

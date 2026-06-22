@@ -26,6 +26,15 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>zbra</string>
+		<string>cydia</string>
+		<string>undecimus</string>
+		<string>sileo</string>
+		<string>filza</string>
+		<string>activator</string>
+	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>fosshati need camera access to scan qr code.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

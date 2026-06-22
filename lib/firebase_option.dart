@@ -67,7 +67,7 @@ class DefaultFirebaseOptions {
     projectId: 'fosshati-67ae4',
     databaseURL:
         'https://flutterfire-e2e-tests-default-rtdb.europe-west1.firebasedatabase.app',
-    storageBucket: 'point-of-sale-e3480.firebasestorage.app',
+    storageBucket: 'fosshati-67ae4.firebasestorage.app',
     androidClientId:
         '406099696497-tvtvuiqogct1gs1s6lh114jeps7hpjm5.apps.googleusercontent.com',
     iosClientId:
