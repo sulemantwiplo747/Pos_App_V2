@@ -54,15 +54,6 @@ dependencies:
   firebase_crashlytics: ^5.0.7
   firebase_analytics: ^12.1.1
   webview_flutter: ^4.13.0
-  ottu_flutter_checkout:
-    # To use ottu_flutter_checkout SDK from a local source, uncomment the line below
-    # and comment out the three lines specifying the Git repository.
-    # path: ../ottu_flutter_checkout
-
-    git:
-      url: https://github.com/ottuco/ottu-flutter.git
-      ref: 2.2.7-cocoapods
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -79,11 +70,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-  config:
-    enable-swift-package-manager: false
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
