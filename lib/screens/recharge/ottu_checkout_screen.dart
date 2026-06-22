@@ -216,19 +216,21 @@ class _OttuCheckoutScreenState extends State<OttuCheckoutScreen> {
                       child: SizedBox(
                         height: height.toDouble(),
                         child: OttuCheckoutWidget(
+                          
                           arguments: CheckoutArguments(
+                            
                             merchantId: AppConstants.ottuMerchantId,
                             apiKey: AppConstants.paymentApiKey,
                             sessionId: widget.sessionId,
                             amount: widget.amount,
                             formsOfPayment: [
-                              FormsOfPayment.googlePay,
+                              // FormsOfPayment.googlePay,
                               // FormsOfPayment.applePay,
                               FormsOfPayment.cardOnSite,
-                              FormsOfPayment.redirect,
+                              // FormsOfPayment.redirect,
                             ],
                             showPaymentDetails: true,
-                            // theme: CheckoutTheme(uiMode: CustomerUiMode.light),
+                            theme: CheckoutTheme(uiMode: CustomerUiMode.auto),
                             paymentOptionsDisplaySettings:
                                 PaymentOptionsDisplaySettings(
                                   mode: PaymentOptionsDisplayMode.BOTTOM_SHEET,
