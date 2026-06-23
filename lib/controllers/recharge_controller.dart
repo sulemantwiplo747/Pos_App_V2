@@ -66,6 +66,9 @@ class WalletRechargeController extends GetxController {
             orderNo: orderNo ?? '',
             checkoutPageUrl: paymentModel.message?.checkoutPageUrl,
             checkoutUrl: paymentModel.message?.checkoutUrl,
+            customerEmail: user?.email,
+            customerName: user?.name,
+            customerPhone: user?.phone,
           ),
         );
       } else {
